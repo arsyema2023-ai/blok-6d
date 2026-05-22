@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f172a">
+<meta name="description" content="Mega Atlas Geriatri v2.0 - Password Protected, Flashcards & Simple Language Mode">
+<title>🏛️ Mega Atlas Geriatri v2.0 | FK UNJA</title>
+<style>
+/* === RESET & BASE === */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f19;--bg2:#111827;--bg3:#1f2937;--accent:#38bdf8;--accent2:#818cf8;--accent3:#34d399;--warn:#fbbf24;--danger:#f87171;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--border:#374151;--card:#1e293b;--success:#22c55e;--simple:#f472b6;
+  --grad1:linear-gradient(135deg,#0ea5e9,#6366f1);--grad2:linear-gradient(135deg,#f59e0b,#ef4444);--grad3:linear-gradient(135deg,#10b981,#3b82f6);--grad-simple:linear-gradient(135deg,#f472b6,#a78bfa);
+}
+html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(56,189,248,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(129,140,248,0.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+/* === AUTH SCREEN === */
+#auth-screen{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
+#auth-screen.hidden{display:none}
+.auth-box{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:2rem;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.auth-icon{font-size:3rem;margin-bottom:1rem}
+.auth-title{font-size:1.3rem;font-weight:800;margin-bottom:.3rem;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-sub{color:var(--text2);font-size:.85rem;margin-bottom:1.5rem}
+.auth-input{width:100%;padding:.8rem 1rem;border-radius:.6rem;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:1rem;outline:none;margin-bottom:.8rem;text-align:center;letter-spacing:.1em}
+.auth-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.15)}
+.auth-btn{width:100%;padding:.8rem;border-radius:.6rem;border:none;background:var(--grad1);color:#fff;font-weight:700;font-size:1rem;cursor:pointer;transition:opacity .2s}
+.auth-btn:hover{opacity:.9}
+.auth-error{color:var(--danger);font-size:.85rem;margin-top:.5rem;min-height:1.2rem}
+.auth-hint{color:var(--text3);font-size:.75rem;margin-top:1rem}
+
+/* === SPLASH === */
+#splash{position:fixed;inset:0;z-index:9999;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;transition:opacity .6s,visibility .6s}
+#splash.visible{display:flex}
+#splash.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.splash-icon{font-size:4rem;margin-bottom:1rem;animation:pulse 2s infinite}
+.splash-title{font-size:1.8rem;font-weight:800;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.splash-sub{color:var(--text2);font-size:1rem;margin-bottom:2rem;max-width:500px;line-height:1.6}
+.splash-btn{padding:.9rem 2.5rem;border-radius:999px;border:none;background:var(--grad1);color:#fff;font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 10px 30px rgba(56,189,248,.3);transition:transform .2s,box-shadow .2s}
+.splash-btn:hover{transform:translateY(-2px);box-shadow:0 15px 40px rgba(56,189,248,.4)}
+.splash-skip{position:absolute;bottom:2rem;right:2rem;color:var(--text3);font-size:.8rem;cursor:pointer;padding:.5rem 1rem;border:1px solid var(--border);border-radius:999px;background:transparent;transition:all .2s}
+.splash-skip:hover{color:var(--text);border-color:var(--accent)}
+
+/* === LAYOUT === */
+#app{position:fixed;inset:0;display:none;z-index:1}
+#app.visible{display:flex}
+#sidebar{width:280px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:transform .3s;z-index:50}
+#sidebar.collapsed{transform:translateX(-100%);position:absolute;height:100%}
+#sidebar header{padding:1.2rem;border-bottom:1px solid var(--border)}
+#sidebar header h1{font-size:1.1rem;font-weight:800;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#sidebar header p{font-size:.75rem;color:var(--text3);margin-top:.25rem}
+#nav-scroll{flex:1;overflow-y:auto;padding:.8rem}
+#nav-scroll::-webkit-scrollbar{width:4px}
+#nav-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.7rem .9rem;border-radius:.6rem;cursor:pointer;transition:all .15s;margin-bottom:.4rem;font-size:.88rem;color:var(--text2);border:1px solid transparent;position:relative}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.25);color:var(--accent)}
+.nav-item .n-num{width:26px;height:26px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--text3);flex-shrink:0}
+.nav-item.active .n-num{background:var(--accent);color:#fff}
+.nav-item .n-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-item .n-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;flex-shrink:0}
+.nav-item.visited .n-check{border-color:var(--accent3);color:var(--accent3)}
+.nav-item.bookmarked .n-bookmark{position:absolute;right:.5rem;top:.5rem;color:var(--warn);font-size:.7rem}
+#sidebar footer{padding:1rem;border-top:1px solid var(--border);font-size:.75rem;color:var(--text3)}
+#sidebar footer .progress-bar{height:4px;background:var(--bg3);border-radius:2px;margin-top:.5rem;overflow:hidden}
+#sidebar footer .progress-fill{height:100%;background:var(--grad1);border-radius:2px;transition:width .4s}
+
+/* === MAIN === */
+#main{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden}
+#topbar{height:56px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.2rem;z-index:40}
+#topbar .left,#topbar .right{display:flex;align-items:center;gap:.6rem}
+.btn-icon{width:36px;height:36px;border-radius:.5rem;border:1px solid var(--border);background:var(--bg3);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;font-size:1rem}
+.btn-icon:hover{background:var(--border);color:var(--text)}
+.btn-icon.active{background:rgba(56,189,248,.15);color:var(--accent);border-color:rgba(56,189,248,.3)}
+#slide-counter{font-size:.85rem;color:var(--text3);font-weight:500}
+#search-box{position:relative}
+#search-box input{width:220px;padding:.45rem .8rem .45rem 2rem;border-radius:.5rem;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:.85rem;outline:none}
+#search-box input:focus{border-color:var(--accent)}
+#search-box svg{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--text3);width:16px;height:16px}
+#search-results{position:absolute;top:110%;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:.5rem;max-height:300px;overflow-y:auto;z-index:100;display:none;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.search-res-item{padding:.6rem .8rem;font-size:.82rem;color:var(--text2);cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem}
+.search-res-item:hover{background:var(--bg3);color:var(--text)}
+.search-res-item span{color:var(--accent);font-weight:600;flex-shrink:0}
+
+/* === CONTENT === */
+#content{flex:1;overflow-y:auto;position:relative;scroll-behavior:smooth}
+#content::-webkit-scrollbar{width:6px}
+#content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.slide{display:none;padding:2rem;max-width:900px;margin:0 auto;animation:fadeIn .4s ease}
+.slide.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+.slide-header{margin-bottom:1.5rem}
+.slide-tag{display:inline-block;padding:.25rem .7rem;border-radius:999px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem;background:rgba(56,189,248,.1);color:var(--accent);border:1px solid rgba(56,189,248,.2)}
+.slide-title{font-size:1.6rem;font-weight:800;line-height:1.3;margin-bottom:.4rem;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.slide-sub{color:var(--text2);font-size:.95rem}
+
+/* === SIMPLE MODE TOGGLE === */
+.simple-toggle{padding:.35rem .8rem;border-radius:999px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .2s;white-space:nowrap}
+.simple-toggle:hover{border-color:var(--simple);color:var(--simple)}
+.simple-toggle.active{background:rgba(244,114,182,.12);border-color:rgba(244,114,182,.3);color:var(--simple)}
+body.simple-mode .academic-only{display:none !important}
+body:not(.simple-mode) .simple-only{display:none !important}
+
+/* === SIMPLE CARDS === */
+.simple-card{background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(167,139,250,.08));border:1px solid rgba(244,114,182,.2);border-radius:.75rem;padding:1rem;margin:1rem 0;position:relative}
+.simple-card::before{content:'🍎';position:absolute;top:-10px;left:12px;background:var(--bg);padding:0 6px;font-size:1rem}
+.simple-card h4{color:var(--simple);font-size:.9rem;margin-bottom:.5rem;margin-top:.3rem}
+.simple-card p,.simple-card li{color:var(--text2);font-size:.88rem;line-height:1.7}
+.simple-card ul{margin-left:1.2rem;margin-top:.4rem}
+.simple-card li{margin-bottom:.3rem}
+.simple-card .analogy{background:rgba(244,114,182,.08);border-left:3px solid var(--simple);padding:.6rem .8rem;border-radius:0 .4rem .4rem 0;margin:.5rem 0;font-style:italic}
+
+/* === CARDS & STATS === */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.8rem;margin:1.2rem 0}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:.75rem;padding:1rem;text-align:center;transition:transform .2s}
+.stat-card:hover{transform:translateY(-3px);border-color:var(--accent)}
+.stat-val{font-size:1.4rem;font-weight:800;color:var(--accent);display:block}
+.stat-label{font-size:.72rem;color:var(--text3);margin-top:.2rem;text-transform:uppercase;letter-spacing:.03em}
+
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:.75rem;padding:1.2rem;margin:1rem 0;position:relative;overflow:hidden}
+.info-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad1)}
+.info-card.warn::before{background:var(--grad2)}
+.info-card.success::before{background:var(--grad3)}
+.info-card h3{font-size:1.05rem;font-weight:700;margin-bottom:.6rem;color:var(--text);display:flex;align-items:center;gap:.5rem}
+.info-card p,.info-card li{color:var(--text2);font-size:.9rem;line-height:1.7}
+.info-card ul{margin-left:1.2rem}
+.info-card li{margin-bottom:.35rem}
+
+/* === TABLES === */
+.data-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem;background:var(--card);border-radius:.6rem;overflow:hidden;border:1px solid var(--border)}
+.data-table th{background:var(--bg3);padding:.7rem .8rem;text-align:left;font-weight:600;color:var(--text);font-size:.8rem;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--border)}
+.data-table td{padding:.65rem .8rem;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(56,189,248,.04)}
+
+/* === MNEMONIC === */
+.mnemonic-box{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(239,68,68,.08));border:1px solid rgba(245,158,11,.2);border-radius:.75rem;padding:1rem;margin:1rem 0}
+.mnemonic-box h4{font-size:.85rem;color:var(--warn);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem}
+.mnemonic-letters{display:flex;flex-wrap:wrap;gap:.4rem}
+.m-letter{padding:.35rem .55rem;border-radius:.4rem;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;border:1px solid rgba(245,158,11,.2)}
+.m-letter:hover{background:rgba(245,158,11,.25);transform:translateY(-2px)}
+.m-letter.revealed{background:rgba(34,197,94,.15);color:var(--success);border-color:rgba(34,197,94,.3)}
+.m-def{display:none;margin-top:.4rem;font-size:.82rem;color:var(--text2);padding-left:.2rem}
+.m-letter.revealed + .m-def{display:block}
+
+/* === DEFINITION TOOLTIP === */
+.def-term{color:var(--accent);border-bottom:1px dashed var(--accent);cursor:pointer;position:relative;font-weight:500}
+.def-popup{position:absolute;bottom:120%;left:50%;transform:translateX(-50%);width:260px;background:var(--card);border:1px solid var(--accent);border-radius:.6rem;padding:.8rem;font-size:.82rem;color:var(--text2);z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s;line-height:1.5}
+.def-popup::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--accent)}
+.def-term:hover .def-popup{opacity:1;pointer-events:auto}
+
+/* === QUIZ === */
+.quiz-box{background:var(--card);border:1px solid var(--border);border-radius:.75rem;padding:1.2rem;margin:1.5rem 0}
+.quiz-box h3{font-size:1rem;font-weight:700;margin-bottom:1rem;color:var(--accent);display:flex;align-items:center;gap:.5rem}
+.quiz-question{font-size:.95rem;font-weight:600;margin-bottom:.8rem;color:var(--text)}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem}
+.quiz-opt{padding:.7rem .9rem;border-radius:.5rem;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all .15s;font-size:.9rem;display:flex;align-items:center;gap:.6rem}
+.quiz-opt:hover{border-color:var(--accent);color:var(--text);background:rgba(56,189,248,.06)}
+.quiz-opt.correct{background:rgba(34,197,94,.12);border-color:var(--success);color:var(--success)}
+.quiz-opt.wrong{background:rgba(248,113,113,.12);border-color:var(--danger);color:var(--danger)}
+.quiz-opt.disabled{pointer-events:none;opacity:.7}
+.quiz-opt .opt-label{width:26px;height:26px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.quiz-opt.correct .opt-label{background:var(--success);color:#fff;border-color:var(--success)}
+.quiz-opt.wrong .opt-label{background:var(--danger);color:#fff;border-color:var(--danger)}
+.quiz-explanation{display:none;margin-top:.8rem;padding:.8rem;border-radius:.5rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);font-size:.88rem;color:var(--text2);line-height:1.6}
+.quiz-explanation.show{display:block}
+.quiz-explanation strong{color:var(--accent)}
+
+/* === EXAM MODE === */
+#exam-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;flex-direction:column}
+#exam-screen.active{display:flex}
+#exam-header{height:60px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.2rem}
+#exam-timer{font-size:1.2rem;font-weight:700;font-family:monospace;color:var(--warn)}
+#exam-timer.urgent{color:var(--danger);animation:pulse .5s infinite}
+#exam-progress{font-size:.9rem;color:var(--text3)}
+#exam-body{flex:1;overflow-y:auto;padding:1.5rem}
+#exam-body .quiz-box{max-width:800px;margin:0 auto 1rem}
+#exam-footer{height:60px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:1rem;padding:0 1rem}
+#exam-result{display:none;position:fixed;inset:0;background:var(--bg);z-index:600;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
+#exam-result.active{display:flex}
+.result-score{font-size:4rem;font-weight:800;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-msg{font-size:1.2rem;color:var(--text2);margin:1rem 0;max-width:500px}
+.result-detail{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0;max-width:500px;width:100%}
+.result-d-item{background:var(--card);border:1px solid var(--border);border-radius:.6rem;padding:1rem}
+.result-d-item .num{font-size:1.5rem;font-weight:700;color:var(--accent)}
+.result-d-item .lbl{font-size:.75rem;color:var(--text3);margin-top:.2rem}
+
+/* === FLASHCARD SCREEN === */
+#flash-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:550;flex-direction:column}
+#flash-screen.active{display:flex}
+#flash-header{height:60px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.2rem}
+#flash-header h2{font-size:1.1rem;font-weight:700;background:var(--grad-simple);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#flash-body{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;perspective:1200px}
+.flash-card-container{width:100%;max-width:520px;height:340px;position:relative;cursor:pointer}
+.flash-card{position:absolute;inset:0;background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:transform .6s,opacity .3s;backface-visibility:hidden;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.flash-card.front{z-index:2;transform:rotateY(0deg)}
+.flash-card.back{z-index:1;transform:rotateY(180deg);background:linear-gradient(135deg,var(--card),rgba(129,140,248,.08));border-color:rgba(129,140,248,.3)}
+.flash-card-container.flipped .flash-card.front{transform:rotateY(180deg);z-index:1}
+.flash-card-container.flipped .flash-card.back{transform:rotateY(360deg);z-index:2}
+.flash-card .fc-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:1rem}
+.flash-card.front .fc-label{color:var(--accent)}
+.flash-card.back .fc-label{color:var(--accent2)}
+.flash-card .fc-text{font-size:1.15rem;line-height:1.6;color:var(--text);font-weight:500}
+.flash-card.back .fc-text{color:var(--text2);font-size:1rem}
+.flash-card .fc-meta{font-size:.75rem;color:var(--text3);margin-top:auto;padding-top:1rem}
+#flash-controls{height:80px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:.8rem;padding:0 1rem}
+.flash-btn{padding:.6rem 1.2rem;border-radius:.5rem;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:.85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.4rem}
+.flash-btn:hover{background:var(--border);color:var(--text)}
+.flash-btn.primary{background:var(--grad-simple);color:#fff;border:none;font-weight:600}
+.flash-btn.primary:hover{opacity:.9}
+.flash-btn.danger{background:rgba(248,113,113,.15);color:var(--danger);border-color:rgba(248,113,113,.3)}
+.flash-btn.success{background:rgba(34,197,94,.15);color:var(--success);border-color:rgba(34,197,94,.3)}
+#flash-progress{width:200px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin:0 1rem}
+#flash-progress-fill{height:100%;background:var(--grad-simple);border-radius:3px;transition:width .3s}
+#flash-stats{font-size:.8rem;color:var(--text3);min-width:80px;text-align:center}
+
+/* === BOTTOM NAV === */
+#bottom-nav{height:64px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.2rem;z-index:40}
+#bottom-nav .nav-btns{display:flex;gap:.6rem}
+.nav-btn{padding:.5rem 1rem;border-radius:.5rem;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:.85rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .15s}
+.nav-btn:hover{background:var(--border);color:var(--text)}
+.nav-btn.primary{background:var(--grad1);color:#fff;border:none;font-weight:600}
+.nav-btn.primary:hover{opacity:.9}
+.nav-btn:disabled{opacity:.4;cursor:not-allowed}
+#bookmark-btn{font-size:1.1rem}
+#bookmark-btn.active{color:var(--warn)}
+
+/* === OVERLAY === */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:45;display:none}
+#overlay.show{display:block}
+
+/* === MOBILE === */
+@media(max-width:768px){
+  #sidebar{width:260px;position:absolute;height:100%;box-shadow:10px 0 30px rgba(0,0,0,.5)}
+  #search-box input{width:120px}
+  .slide{padding:1.2rem}
+  .slide-title{font-size:1.3rem}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .result-detail{grid-template-columns:1fr}
+  .flash-card-container{height:280px}
+  .flash-card{padding:1.2rem}
+  .flash-card .fc-text{font-size:1rem}
+  #flash-controls{flex-wrap:wrap;height:auto;padding:.8rem;gap:.5rem}
+}
+
+/* === UTILITIES === */
+.highlight{background:rgba(56,189,248,.15);padding:.1rem .3rem;border-radius:.25rem;color:var(--accent);font-weight:500}
+.warn-text{color:var(--warn)}
+.danger-text{color:var(--danger)}
+.success-text{color:var(--success)}
+.text-center{text-align:center}
+.mt-1{margin-top:1rem}.mt-2{margin-top:2rem}.mb-1{margin-bottom:1rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-icon">🔐</div>
+    <div class="auth-title">MEGA ATLAS GERIATRI</div>
+    <div class="auth-sub">Versi 2.0 • FK Universitas Jambi<br>Masukkan sandi akses untuk melanjutkan</div>
+    <input type="password" class="auth-input" id="auth-input" placeholder="••••••••••" maxlength="20" onkeydown="if(event.key==='Enter')checkAuth()">
+    <button class="auth-btn" onclick="checkAuth()">🔓 Buka Akses</button>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-hint">💡 Petunjuk: nama blok + kampus (huruf kecil, tanpa spasi)</div>
+  </div>
+</div>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <div class="splash-icon">🏛️</div>
+  <div class="splash-title">MEGA ATLAS GERIATRI</div>
+  <div class="splash-sub">Blok Kedokteran FK Universitas Jambi<br>13 Materi Lengkap • Quiz • Flashcard • Simulasi Ujian 40 Soal<br><span style="color:var(--accent)">v2.0</span> dengan <span style="color:var(--simple)">Mode Bahasa Sederhana</span></div>
+  <button class="splash-btn" onclick="enterApp()">🚀 Mulai Eksplorasi</button>
+  <button class="splash-skip" onclick="enterApp()">Lewati Intro ⏭</button>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <header>
+      <h1>📚 MEGA ATLAS</h1>
+      <p>Geriatri • FK UNJA • v2.0</p>
+    </header>
+    <div id="nav-scroll"></div>
+    <footer>
+      <div style="display:flex;justify-content:space-between;margin-bottom:.3rem">
+        <span>Progress</span>
+        <span id="progress-text">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:.6rem;font-size:.7rem">
+        <span>📖 <span id="visited-count">0</span>/<span id="total-slides">0</span></span>
+        <span>✅ <span id="answered-count">0</span></span>
+        <span>⭐ <span id="bookmark-count">0</span></span>
+      </div>
+    </footer>
+  </aside>
+
+  <!-- OVERLAY for mobile sidebar -->
+  <div id="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- MAIN -->
+  <main id="main">
+    <div id="topbar">
+      <div class="left">
+        <button class="btn-icon" onclick="toggleSidebar()" title="Menu">☰</button>
+        <span id="slide-counter">01 / 13</span>
+      </div>
+      <div class="right">
+        <button class="simple-toggle" id="simple-toggle" onclick="toggleSimpleMode()" title="Mode Bahasa">
+          <span id="simple-icon">🎓</span> <span id="simple-label">Akademik</span>
+        </button>
+        <div id="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="search-input" placeholder="Cari materi..." oninput="doSearch(this.value)" onblur="setTimeout(()=>document.getElementById('search-results').style.display='none',200)">
+          <div id="search-results"></div>
+        </div>
+        <button class="btn-icon" onclick="openFlashcards()" title="Flashcard">🎴</button>
+        <button class="btn-icon" onclick="toggleZoom()" title="Zoom">🔍</button>
+        <button class="btn-icon" onclick="startExam()" title="Simulasi Ujian">📝</button>
+      </div>
+    </div>
+
+    <div id="content"></div>
+
+    <div id="bottom-nav">
+      <div class="nav-btns">
+        <button class="nav-btn" id="btn-prev" onclick="prevSlide()">◀ Prev</button>
+        <button class="nav-btn" id="btn-next" onclick="nextSlide()">Next ▶</button>
+      </div>
+      <button class="btn-icon" id="bookmark-btn" onclick="toggleBookmark()" title="Bookmark">🔖</button>
+    </div>
+  </main>
+</div>
+
+<!-- EXAM SCREEN -->
+<div id="exam-screen">
+  <div id="exam-header">
+    <div style="font-weight:700;color:var(--accent)">📝 SIMULASI UJIAN GERIATRI</div>
+    <div id="exam-timer">40:00</div>
+    <div id="exam-progress">1 / 40</div>
+  </div>
+  <div id="exam-body"></div>
+  <div id="exam-footer">
+    <button class="nav-btn" onclick="prevExamQ()">◀ Soal Sebelumnya</button>
+    <button class="nav-btn primary" onclick="submitExam()">✅ Selesai & Kumpulkan</button>
+    <button class="nav-btn" onclick="nextExamQ()">Soal Berikutnya ▶</button>
+  </div>
+</div>
+
+<!-- EXAM RESULT -->
+<div id="exam-result">
+  <div class="result-score" id="result-score">85%</div>
+  <div class="result-msg" id="result-msg">Sangat Baik!</div>
+  <div class="result-detail">
+    <div class="result-d-item"><div class="num" id="res-correct">0</div><div class="lbl">Jawaban Benar</div></div>
+    <div class="result-d-item"><div class="num" id="res-wrong">0</div><div class="lbl">Jawaban Salah</div></div>
+    <div class="result-d-item"><div class="num" id="res-time">0</div><div class="lbl">Waktu Tersisa</div></div>
+  </div>
+  <button class="splash-btn" onclick="closeExamResult()">🔙 Kembali ke Materi</button>
+</div>
+
+<!-- FLASHCARD SCREEN -->
+<div id="flash-screen">
+  <div id="flash-header">
+    <div style="display:flex;align-items:center;gap:.6rem">
+      <button class="btn-icon" onclick="closeFlashcards()">✕</button>
+      <h2>🎴 FLASHCARD MODE</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem">
+      <button class="btn-icon" onclick="shuffleFlashcards()" title="Acak">🔀</button>
+      <select id="flash-filter" onchange="filterFlashcards(this.value)" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:.4rem;padding:.3rem .5rem;font-size:.8rem">
+        <option value="all">Semua Slide</option>
+      </select>
+    </div>
+  </div>
+  <div id="flash-body">
+    <div class="flash-card-container" id="flash-card-container" onclick="flipFlashcard()">
+      <div class="flash-card front" id="flash-front">
+        <div class="fc-label">📖 Klik untuk membalik</div>
+        <div class="fc-text" id="flash-front-text">Memuat...</div>
+        <div class="fc-meta" id="flash-front-meta">Slide 1</div>
+      </div>
+      <div class="flash-card back" id="flash-back">
+        <div class="fc-label">💡 Penjelasan</div>
+        <div class="fc-text" id="flash-back-text">...</div>
+        <div class="fc-meta" id="flash-back-meta">Tap card untuk kembali</div>
+      </div>
+    </div>
+  </div>
+  <div id="flash-controls">
+    <button class="flash-btn danger" onclick="markFlashcardHard()">😰 Sulit</button>
+    <button class="flash-btn" onclick="prevFlashcard()">◀ Prev</button>
+    <div id="flash-progress"><div id="flash-progress-fill" style="width:0%"></div></div>
+    <div id="flash-stats">1 / 20</div>
+    <button class="flash-btn" onclick="nextFlashcard()">Next ▶</button>
+    <button class="flash-btn success" onclick="markFlashcardEasy()">😊 Mudah</button>
+  </div>
+</div>
+
+<script>
+
+const slidesData = [
+{
+  id:1,
+  title:"Perubahan Fisiologis Mata pada Lansia",
+  subtitle:"Presbiopi • Katarak • Dry Eye • ARMD",
+  tag:"Oftalmologi Geriatri",
+  stats:[{v:"40+",l:"Onset Presbiopi"},{v:"90%",l:"Cedera Tidak Disengaja"},{v:">50th",l:"Katarak Senilis"}],
+  content:`
+    <div class="info-card academic-only">
+      <h3>👁️ Definisi</h3>
+      <p>Perubahan fisiologis mata pada <span class="def-term">usia lanjut<span class="def-popup">WHO: ≥60 tahun; Sutikno: kelompok usia sensitif mengalami perubahan biologis berkesinambungan</span></span> meliputi: <span class="highlight">Presbiopi</span>, <span class="highlight">Katarak</span>, <span class="highlight">Sindroma Mata Kering</span>, dan <span class="highlight">ARMD</span>.</p>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>🔍 1. Presbiopi</h3>
+      <p>Kehilangan kemampuan mata memfokuskan benda dekat. <strong>Penyebab:</strong> berkurangnya <span class="def-term">daya akomodasi lensa<span class="def-popup">Kemampuan lensa mata mengubah kelengkungan untuk memfokuskan objek pada jarak berbeda</span></span> akibat kekakuan lensa & kehilangan elastisitas otot siliaris.</p>
+      <ul>
+        <li><strong>Gejala:</strong> menyipitkan mata, butuh lampu terang, kesulitan membaca huruf kecil, sakit kepala setelah membaca dekat</li>
+        <li><strong>Diagnosis:</strong> pemeriksaan visus + refraksi (kartu Jaeger)</li>
+        <li><strong>Terapi:</strong> kacamata baca, kontak lens, implantasi lensa, LASIK</li>
+      </ul>
+    </div>
+    <div class="info-card academic-only">
+      <h3>💎 2. Katarak Senilis</h3>
+      <p>Kekeruhan lensa akibat <span class="def-term">denaturasi protein lensa<span class="def-popup">Perubahan struktur protein lensa sehingga kehilangan fungsi dan transparansi</span></span> dan hidrasi cairan lensa. Faktor risiko: usia >50th, DM, radiasi UV, steroid jangka panjang.</p>
+      <table class="data-table">
+        <tr><th>Stadium</th><th>Karakteristik</th></tr>
+        <tr><td>Imatur</td><td>Kekeruhan parsial, visus masih baik</td></tr>
+        <tr><td>Matur</td><td>Kekeruhan total, visus sangat menurun</td></tr>
+        <tr><td>Hipermatur</td><td>Kapsul rapuh, risiko phacolytic glaucoma</td></tr>
+      </table>
+      <p><strong>Indikasi pembedahan:</strong> gangguan aktivitas sehari-hari, lens-induced glaucoma, phacoanaphylactic endophthalmitis, retinopati DM yang terhalang.</p>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>💧 3. Dry Eye / Sindroma Mata Kering</h3>
+      <p>Penyakit multifaktorial film air mata & permukaan okular → ketidaknyamanan, gangguan visual, ketidakstabilan film air mata. <strong>3 lapisan film air mata:</strong> Lipid (Meibom), Aqueous (glandula lakrimalis), Mucin (sel goblet).</p>
+      <ul>
+        <li><strong>Klasifikasi:</strong> Defisiensi komponen aqueous (Sjögren / non-Sjögren) vs evaporatif (defisiensi Meibom, blefaritis, CVS)</li>
+        <li><strong>Pemeriksaan:</strong> OSDI, Schirmer test, BUT, Rose Bengal, osmolalitas air mata</li>
+        <li><strong>Terapi:</strong> air mata buatan, antiinflamasi topikal (siklosporin), punctal plug, suplemen omega-3</li>
+      </ul>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>🧬 4. Age Related Macular Degeneration (ARMD)</h3>
+      <p>Degenerasi makula terkait usia → kehilangan penglihatan sentral. Dua tipe: <strong>dry (atrophic)</strong> & <strong>wet (exudative)</strong>. Risiko: usia, merokok, genetik, hipertensi, obesitas.</p>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Mata Lansia dalam Bahasa Sederhana</h4>
+      <p>Bayangkan mata itu seperti kamera. Seiring bertambahnya usia:</p>
+      <ul>
+        <li><strong>Presbiopi (Mata Tua):</strong> Lensa kamera jadi kaku, tidak bisa fokus ke objek dekat. Seperti kamera analog yang autofokusnya rusak — benda dekat jadi kabur.</li>
+        <li><strong>Katarak:</strong> Lensa kamera berembun/berkabut. Seperti melihat melalui kaca mobil yang berembun tebal. Biasanya terjadi setelah usia 50 tahun.</li>
+        <li><strong>Mata Kering:</strong> Mesin pelumas mata berkurang. Seperti mesin tanpa oli — terasa perih, gatal, dan mudah lelah.</li>
+        <li><strong>ARMD:</strong> Sensor kamera (makula) rusak. Seperti kamera HP yang bagian tengah layarnya ada bintik hitam — penglihatan tengah hilang, tapi samping masih bisa.</li>
+      </ul>
+      <div class="analogy">💡 <strong>Analogi:</strong> Mata lansia seperti kamera tua — lensa kaku (presbiopi), lensa berembun (katarak), pelumas kering (dry eye), dan sensor tengah rusak (ARMD).</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: MATA TUA</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">M</div><div class="m-def">Makula degenerasi (ARMD)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Akomodasi berkurang (Presbiopi)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Tear film tidak stabil (Dry eye)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Air mata berkurang</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Transparansi lensa hilang (Katarak)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">U</div><div class="m-def">Usia >60 tahun faktor utama</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Aktivitas harus tetap terjaga</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Apa itu Presbiopi dalam bahasa sederhana?",back:"Mata sudah tua dan susah melihat benda dekat. Seperti kamera yang lensanya sudah kaku dan tidak bisa fokus ke objek dekat. Solusi: kacamata baca."},
+    {front:"Kenapa lensa mata bisa keruh (Katarak)?",back:"Protein dalam lensa mata rusak dan berkelompok seperti embun di kaca. Biasanya karena usia, diabetes, atau sinar UV bertahun-tahun."},
+    {front:"3 Lapisan Air Mata — apa saja?",back:"1. Lapisan Minyak (Lipid) — cegah penguapan<br>2. Lapisan Air (Aqueous) — basahi mata<br>3. Lapisan Lendir (Mucin) — tempelkan air ke kornea"},
+    {front:"Kenapa mata lansia sering kering?",back:"Kelenjar air mata bekerja lebih lambat + kelopak mata tidak menutup sempurna. Seperti keran air yang sudah tua — keluarnya air tidak lancar."},
+    {front:"ARMD itu apa? Kenapa bahaya?",back:"Degenerasi Makula Terkait Usia = sensor tengah mata rusak. Bahaya karena penglihatan tengah (untuk membaca, mengenali wajah) hilang perlahan."}
+  ],
+  quiz:[
+    {q:"Penyebab utama presbiopi adalah?",options:["Infeksi bakteri","Berkurangnya elastisitas lensa & otot siliaris","Glaukoma","Retinopati diabetik"],correct:1,exp:"Presbiopi disebabkan kekakuan lensa kristalin & kehilangan elastisitas otot siliaris seiring bertambahnya usia."},
+    {q:"Katarak senilis adalah kekeruhan lensa akibat?",options:["Infeksi virus","Denaturasi protein & hidrasi cairan lensa","Trauma tumpul","Uveitis kronik"],correct:1,exp:"Katarak senilis terjadi akibat denaturasi protein lensa dan perubahan hidrasi cairan lensa yang mengakibatkan kekeruhan."},
+    {q:"Lapisan film air mata paling dalam (kontak langsung dengan kornea) adalah?",options:["Lipid","Aqueous","Mucin","Serum"],correct:2,exp:"Lapisan mucin diproduksi oleh sel goblet dan merupakan lapisan paling dalam yang menempel pada epitel kornea."}
+  ]
+},
+{
+  id:2,
+  title:"Fisiologi & Patologi Kulit pada Lansia",
+  subtitle:"Epidermis • Dermis • Subkutan • Adneksa",
+  tag:"Dermatologi Geriatri",
+  stats:[{v:"16%",l:"Berat Kulit dari BB"},{v:"1,5-1,9",l:"m² Luas Kulit"},{v:"4-6 minggu",l:"Turnover Epidermis"}],
+  content:`
+    <div class="info-card academic-only">
+      <h3>🛡️ Struktur Kulit</h3>
+      <p>Kulit: lapisan tipis pembungkus tubuh, benteng pertahanan utama. Berat ~16% BB, luas 1,5-1,9 m².</p>
+      <div class="grid-2">
+        <div>
+          <h4 style="color:var(--accent);margin:.5rem 0 .3rem">Epidermis (0,5-4 mm)</h4>
+          <ul>
+            <li><strong>Stratum korneum:</strong> lapisan paling luar, 15-20 baris sel tanduk</li>
+            <li><strong>Stratum lusidum:</strong> penyambung lapis tanduk & butir</li>
+            <li><strong>Stratum granulosum:</strong> 2-4 baris sel berbentuk kumparan</li>
+            <li><strong>Stratum spinosum:</strong> sel Langerhans (penyaji antigen)</li>
+            <li><strong>Stratum basale:</strong> melanosit, regenerasi 4-6 minggu</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="color:var(--accent2);margin:.5rem 0 .3rem">Dermis (0,2-4 mm)</h4>
+          <ul>
+            <li><strong>Pars papilaris:</strong> fibroblast, kolagen, elastin</li>
+            <li><strong>Pars retikularis:</strong> pembuluh darah, limfe, akar rambut, kelenjar</li>
+            <li><strong>Subkutan:</strong> jaringan adipose, bantalan trauma, penyekat panas</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>👴 Perubahan Kulit Usia Lanjut</h3>
+      <table class="data-table">
+        <tr><th>Lapisan</th><th>Perubahan</th><th>Klinis</th></tr>
+        <tr><td>Epidermis</td><td>Penipisan 10-50%, ↓turnover, ↓barrier function, ↓filaggrin</td><td>Kulit kering, kasar, bersisik</td></tr>
+        <tr><td>Dermis</td><td>↓kolagen I & III, ↓elastin, ↓fibroblast, ↓VEGF</td><td>Kerut, kendor, gangguan penyembuhan</td></tr>
+        <tr><td>Subkutan</td><td>↓lemak wajah (dahi, periorbital), ↓bantalan</td><td>Wajah cekung, tampak tua</td></tr>
+        <tr><td>Rambut</td><td>↓folikel, 50% uban, ↓kepadatan (pria: dada/aksila; wanita: hirsutisme wajah)</td><td>Rambut tipis, uban</td></tr>
+        <tr><td>Kuku</td><td>↓pertumbuhan, rapuh, guratan</td><td>Kuku rapuh, kuning</td></tr>
+        <tr><td>Kelenjar</td><td>↓kelenjar ekrin 15%, ↓apokrin, ↓sebum</td><td>Kulit kering, ↓termoregulasi</td></tr>
+      </table>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Kulit Lansia — Penjelasan Sederhana</h4>
+      <p>Bayangkan kulit seperti <strong>rumah bertingkat 3 lantai</strong>:</p>
+      <ul>
+        <li><strong>Lantai 1 (Epidermis):</strong> Tembok luar rumah. Dulu tebal & kuat, sekarang menipis & mudah pecah. Catnya (melanin) juga berkurang → kulit pucat.</li>
+        <li><strong>Lantai 2 (Dermis):</strong> Tulang & perabot rumah. Kolagen & elastin seperti besi beton — dulu kokoh, sekarang berkarat & rapuh. Makanya kulit kerut & kendor.</li>
+        <li><strong>Lantai 3 (Subkutan):</strong> Peredam & pendingin. Lemak di wajah berkurang → pipi cekung. Kelenjar keringat berkurang → gampang kepanasan.</li>
+      </ul>
+      <div class="analogy">💡 <strong>Analogi:</strong> Kulit lansia seperti rumah tua — tembok retak (kerut), cat pudar (pucat), peredam tipis (bantalan berkurang), dan AC tidak berfungsi baik (keringat berkurang).</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: SKIN AGE</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">S</div><div class="m-def">Surface (epidermis) menipis</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">K</div><div class="m-def">Keratinisasi melambat</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">I</div><div class="m-def">Imunitas kulit menurun</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">N</div><div class="m-def">Nutrisi jaringan berkurang (↓Vaskularisasi)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Adipose subkutan berkurang</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">G</div><div class="m-def">Gland (kelenjar) berfungsi ↓</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">E</div><div class="m-def">Elastin & kolagen rusak</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Epidermis itu apa? (Bahasa sederhana)",back:"Lapisan kulit paling luar seperti 'tembok rumah'. Melindungi dari kuman & air. Di lansia, tembok ini menipis — makanya gampang lecet & kering."},
+    {front:"Kenapa kulit lansia kerut & kendor?",back:"Karena kolagen & elastin (pegas kulit) berkurang. Seperti sofa lama — pegasnya lemah & kulitnya kendor."},
+    {front:"Subkutan berfungsi sebagai apa?",back:"Bantalan & pendingin. Lemak di bawah kulit melindungi tulang dari benturan & menjaga suhu tubuh. Lansia kehilangan bantalan ini → pipi cekung & mudah memar."},
+    {front:"Turnover epidermis normal berapa lama?",back:"4-6 minggu. Di lansia bisa lebih lambat — makanya luka lebih lama sembuh & kulit kelihatan kusam."},
+    {front:"Sel Langerhans di stratum spinosum berfungsi?",back:"Seperti 'satpam kulit' — menangkap benda asing & bawa ke sistem imun. Jumlahnya berkurang di lansia → risiko infeksi kulit naik."}
+  ],
+  quiz:[
+    {q:"Lapisan epidermis paling dalam yang mengandung melanosit adalah?",options:["Stratum korneum","Stratum spinosum","Stratum basale","Stratum granulosum"],correct:2,exp:"Stratum basale (stratum germinativum) mengandung sel basal dan melanosit yang memproduksi melanin."},
+    {q:"Perubahan dermis pada lansia yang menyebabkan kulit kerut dan kendor adalah?",options:["Peningkatan elastin","Penurunan kolagen I & III serta elastin","Hiperplasia fibroblast","Peningkatan VEGF"],correct:1,exp:"Penurunan kolagen I & III dan kehilangan elastin menyebabkan kulit kehilangan kekenyalan dan elastisitas."},
+    {q:"Turnover epidermis normal sekitar?",options:["1-2 minggu","4-6 minggu","3-4 bulan","1 tahun"],correct:1,exp:"Regenerasi epidermis dari stratum basale ke korneum membutuhkan waktu sekitar 4-6 minggu."}
+  ]
+},
+
+{
+  id:3,
+  title:"Kelainan Kulit pada Lansia",
+  subtitle:"Infeksi • Ulkus • Kanker Kulit",
+  tag:"Dermatologi Geriatri",
+  stats:[{v:"50-70%",l:"Sembuh Dekubitus"},{v:">70th",l:"Ulkus Dekubitus"},{v:"1-3%",l:"Melanoma dari Keganasan"}],
+  content:`
+    <div class="info-card warn academic-only">
+      <h3>🩹 Ulkus Dekubitus (Pressure Ulcer)</h3>
+      <p>Rusaknya jaringan lunak akibat tekanan dari tonjolan tulang terhadap permukaan eksternal → <span class="def-term">iskemia<span class="def-popup">Kurangnya suplai darah ke jaringan sehingga terjadi hipoksia dan kerusakan sel</span></span> lokal.</p>
+      <ul>
+        <li><strong>Risiko tinggi:</strong> teraplegi, kanker stadium akhir, DM, ginjal tahap akhir, fraktur femur, status mental menurun, mobilitas ↓</li>
+        <li><strong>Stadium:</strong> I (eritema) → II (partial thickness) → III (full thickness) → IV (tulang/muscle terbuka)</li>
+        <li><strong>Terapi:</strong> hindari tekanan, mobilisasi, kompres, salep antibiotik, debridemen, nutrisi tinggi protein</li>
+      </ul>
+    </div>
+    <div class="info-card academic-only">
+      <h3>🦠 Infeksi Kulit Tersering</h3>
+      <table class="data-table">
+        <tr><th>Penyakit</th><th>Etiologi</th><th>Klinis</th><th>Terapi</th></tr>
+        <tr><td>Impetigo Bulosa</td><td>Stafilokokus, Streptokokus</td><td>Vesikel → bullae → krusta</td><td>Amoksilin-klavulanat, sefaleksin, azitromisin</td></tr>
+        <tr><td>Skabies</td><td><em>Sarcoptes scabiei</em></td><td>Pruritus nokturna, kunikulus, papul</td><td>Permetrin 5%, belerang endap, krotamiton 10%</td></tr>
+        <tr><td>Herpes Zoster</td><td>VZV reaktivasi</td><td>Eritema → vesikel berkelompok dermatomal</td><td>Asiklovir 5×800 mg, valasiklovir; komplikasi: neuralgia pasca-herpetik</td></tr>
+        <tr><td>Kandidiasis Intertriginosa</td><td><em>Candida albicans</em></td><td>Bercak eritematosa, satelit pustul, lipatan</td><td>Azol topikal (mikonazol, klotrimazol), flukonazol sistemik</td></tr>
+        <tr><td>Tinea Kruris/Pedis</td><td>Dermatofita</td><td>Bercak bersisik aktif di tepi, interdigital</td><td>Terbinafin topikal/sistemik, itrakonazol</td></tr>
+        <tr><td>Dermatitis Numularis</td><td>Stafilokokus, mikrokokus</td><td>Lesi numular eritematosa, sangat gatal</td><td>Topikal kortikosteroid, antihistamin, antibiotik jika infeksi</td></tr>
+      </table>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>🔬 Kanker Kulit pada Lansia</h3>
+      <ul>
+        <li><strong>Keratosis Seboroik:</strong> tumor jinak paling sering, stuck-on appearance, cryotherapy/elektrodessikasi</li>
+        <li><strong>BCC (Basal Cell Carcinoma):</strong> nodulus, kistik, superfisial, morfea. Prognosis baik bila terapi adekuat</li>
+        <li><strong>SCC (Squamous Cell Carcinoma):</strong> predileksi tungkai bawah, metastasis. Etiologi: UV, arsenik, radiasi</li>
+        <li><strong>Melanoma Maligna:</strong> jarang (1-3% keganasan), prognosis buruk. Klasifikasi Clark & Breslow</li>
+      </ul>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Kelainan Kulit Lansia — Sederhana</h4>
+      <p><strong>Ulkus Dekubitus (Luka Tekan):</strong> Seperti buah yang ditekan terus-menerus di satu titik — jaringan mati karena tidak dapat darah. Solusi: pindahkan posisi tiap 2 jam.</p>
+      <ul>
+        <li><strong>Impetigo:</strong> Infeksi bakteri gampang menular — seperti "bisul rambatan" dengan keropeng madu.</li>
+        <li><strong>Skabies (Kudis):</strong> Tungau menggali terowongan di kulit — gatal parah malam hari. Obatnya salep permetrin (seperti "pembasmian tungau").</li>
+        <li><strong>Herpes Zoster (Cacar Api):</strong> Virus tidur sejak kecil (cacar) bangun lagi saat tua & imun lemah — muncul gelembung mengikuti jalur saraf seperti peta.</li>
+        <li><strong>Kanker Kulit:</strong> BCC (jinak, jarang metastasis), SCC (agresif), Melanoma (ganas, dari tahi lalat). Pantau perubahan: ABCDE (Asimetri, Batas, Corak, Diameter >6mm, Evolusi).</li>
+      </ul>
+      <div class="analogy">💡 <strong>Analogi:</strong> Kulit lansia seperti kertas tisu basah — mudah robek (luka tekan), mudah dihinggapi kuman (infeksi), dan perubahan warna bisa jadi tanda bahaya (kanker).</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: CANCER SKIN</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">C</div><div class="m-def">Cryotherapy untuk KSB</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Asiklovir untuk Herpes Zoster</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">N</div><div class="m-def">Numular dermatitis → kortikosteroid</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">C</div><div class="m-def">Candida → azol</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">E</div><div class="m-def">Excision untuk SCC/BCC</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">R</div><div class="m-def">Reposition tiap 2 jam (Dekubitus)</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Apa itu Ulkus Dekubitus? (Sederhana)",back:"Luka akibat tekanan lama di satu titik — seperti buah yang ditekan terus sampai busuk. Terjadi karena darah tidak mengalir ke jaringan. Pencegahan: pindah posisi tiap 2 jam."},
+    {front:"Kenapa skabies gatalnya malam hari?",back:"Tungau Sarcoptes aktif di suhu hangat (saat tidur). Gatalnya luar biasa karena tungau menggali terowongan & bertelur di bawah kulit."},
+    {front:"Bedanya Herpes Zoster & Herpes Simpleks?",back:"Zoster = virus cacar yang tidur di saraf & bangun lagi saat imun lemah, mengikuti 1 jalur saraf (dermatomal). Simpleks = biasanya di bibir/kelamin, berulang di tempat yang sama."},
+    {front:"ABCDE untuk mendeteksi Melanoma?",back:"A = Asimetri (tidak simetris)<br>B = Batas (tidak rata)<br>C = Corak (warna macam-macam)<br>D = Diameter >6mm<br>E = Evolusi (berkembang/berubah)"},
+    {front:"Terapi first-line kandidiasis kulit?",back:"Azol topikal (mikonazol 2%, klotrimazol 1%). Jika luas/parah: flukonazol oral. Hindari kortikosteroid karena memperparah jamur!"}
+  ],
+  quiz:[
+    {q:"Stadium IV ulkus dekubitus ditandai dengan?",options:["Eritem non-blanchable","Partial thickness loss","Full thickness loss","Tulang/muscle/tendon terbuka"],correct:3,exp:"Stadium IV: full-thickness tissue loss dengan tulang, tendon, atau muscle terbuka."},
+    {q:"Terapi first-line herpes zoster pada lansia adalah?",options:["Antibiotik","Asiklovir 5×800 mg","Kortikosteroid saja","Antihistamin"],correct:1,exp:"Asiklovir 5×800 mg selama 7-10 hari adalah antiviral first-line untuk herpes zoster."},
+    {q:"Tumor jinak kulit paling sering pada lansia adalah?",options:["Nevus","Keratosis seboroik","Hemangioma","Fibroma"],correct:1,exp:"Keratosis seboroik (seborrheic keratosis) adalah tumor jinak epidermal paling sering ditemukan pada lansia."}
+  ]
+},
+{
+  id:4,
+  title:"Rational Multidrug Therapy pada Lansia",
+  subtitle:"Polypharmacy • Farmakokinetik • Beer's Criteria",
+  tag:"Farmakologi Geriatri",
+  stats:[{v:"33%",l:"Obat Dibeli Lansia"},{v:"4-5",l:"Minimal Polypharmacy"},{v:"25%",l:"Populasi 2040 Beli Obat"}],
+  content:`
+    <div class="info-card warn academic-only">
+      <h3>💊 Polypharmacy & Masalah</h3>
+      <p>WHO 2017: ≥60 tahun = 650 juta, estimasi 2050 = 2 miliar. Lansia membeli 33% dari seluruh obat resep. <span class="def-term">Polypharmacy<span class="def-popup">Penggunaan ≥4-5 obat secara bersamaan, sering terjadi pada lansia dengan multiple comorbidities</span></span> sering menyebabkan prescription cascade.</p>
+      <ul>
+        <li><strong>Permasalahan:</strong> meningkatnya penyakit, polifarmasi, masalah nutrisi, ↓dana, ↓kepatuhan</li>
+        <li><strong>Perubahan fisiologis:</strong> ↓air tubuh (61→53%), ↓massa tanpa lemak (19→12%), ↑lemak (26-33→38-45%), ↓aliran darah hati (100→55-60%), ↓albumin (4,7→3,8), ↓berat ginjal (100→80)</li>
+      </ul>
+    </div>
+    <div class="info-card academic-only">
+      <h3>⚗️ Farmakokinetik Geriatri</h3>
+      <table class="data-table">
+        <tr><th>Tahap</th><th>Perubahan</th><th>Dampak Klinis</th></tr>
+        <tr><td>Absorpsi</td><td>↓aliran darah GI, ↓mucosal surface, ↓asam lambung, ↓motilitas</td><td>Cmax menurun tapi total absorpsi sama; onset bisa lambat</td></tr>
+        <tr><td>Distribusi</td><td>↓air & lean mass, ↑lemak, ↓albumin</td><td>Vd lipofilik ↑ (t1/2 panjang); obat terikat protein ↑ efek (warfarin, fenitoin)</td></tr>
+        <tr><td>Metabolisme</td><td>↓aliran darah hati, ↓CYP450, ↓massa hati</td><td>Metabolisme fase I ↓ → akumulasi obat aktif (diazepam, amiodaron)</td></tr>
+        <tr><td>Ekskresi</td><td>↓GFR, ↓renal blood flow, ↓tubular secretion</td><td>Obat renally-cleared akumulasi (digoxin, aminoglikosida, litium)</td></tr>
+      </table>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>📐 Cockcroft-Gault & Dosis</h3>
+      <p><strong>CrCl (mL/menit) =</strong> [(140 - usia) × BB(kg)] / [72 × SrKreatinin(mg/dL)]; wanita × 0,85</p>
+      <p>CrCl menurun pada 2/3 populasi lansia meski SrKreatinin tampak normal karena ↓produksi kreatinin dari ↓massa otot.</p>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>🚫 Beer's Criteria (AGS)</h3>
+      <p>Pedoman obat yang berpotensi tidak sesuai untuk lansia (≥65 th) karena risiko efek samping > manfaat:</p>
+      <ul>
+        <li><strong>Hindari:</strong> Nifedipine IR (hipotensi, iskemia), antikolinergik (delirium, retensi urine, jatuh), benzodiazepin jangka panjang (jatuh, kognitif), NSAID jangka panjang (GI bleed, ginjal, HT), sliding scale insulin saja (hipoglikemia)</li>
+        <li><strong>Prinsip:</strong> start low, go slow; deprescribing; pertimbangkan benefit-risk ratio</li>
+      </ul>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Obat-obatan pada Lansia — Sederhana</h4>
+      <p><strong>Bayangkan tubuh lansia seperti mesin tua:</strong></p>
+      <ul>
+        <li><strong>Absorpsi (Saluran Cerna):</strong> Mesin pencernaan melambat. Obat masih masuk, tapi lebih lambat — seperti antrian di bank yang hanya ada 1 teller.</li>
+        <li><strong>Distribusi (Pengiriman):</strong> Air tubuh berkurang (dari 61% jadi 53%) — obat larut air jadi lebih pekat (berbahaya!). Lemak naik — obat gemuk (lipofilik) tersimpan lama di lemak seperti barang di gudang.</li>
+        <li><strong>Metabolisme (Pabrik Hati):</strong> Pabrik hati sudah tua & kecil — kerjanya 40% lebih lambat. Obat yang biasa dihancurkan hati jadi menumpuk seperti sampah yang tidak diangkut.</li>
+        <li><strong>Ekskresi (Pembuangan):</strong> Ginjal seperti filter air tua — kemampuannya turun. Obat yang dibuang lewat urine menumpuk → racun.</li>
+      </ul>
+      <p><strong>Beer's Criteria:</strong> Daftar obat "berbahaya" untuk lansia. Seperti daftar makanan yang dilarang untuk penderita diabetes — harus dihindari atau digunakan sangat hati-hati.</p>
+      <div class="analogy">💡 <strong>Analogi:</strong> Beri obat pada lansia seperti mengisi bensin mobil tua — jangan penuh-penuh (start low), isi pelan-pelan (go slow), dan rutin cek mesin (monitoring).</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: START LOW</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">S</div><div class="m-def">Screening interaksi obat rutin</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Tinjau ulang setiap kunjungan</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Avoid antikolinergik (Beer's)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">R</div><div class="m-def">Renal function check (Cockcroft-Gault)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Titrate dosis perlahan</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">L</div><div class="m-def">Look for prescription cascade</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">O</div><div class="m-def">Observe for adverse drug events (ADE)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">W</div><div class="m-def">Warn patient & caregiver</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Kenapa obat lipofilik lebih lama efeknya di lansia?",back:"Karena lemak tubuh lansia meningkat (38-45%). Obat lipofilik seperti 'masuk ke gudang besar' — tersimpan di lemak & keluarnya sangat lambat (t1/2 panjang)."},
+    {front:"Rumus Cockcroft-Gault untuk apa?",back:"Menghitung kemampuan ginjal membuang zat (CrCl). Penting untuk menyesuaikan dosis obat yang dibuang lewat urine — seperti menghitung berapa banyak air yang bisa diserap spons tua."},
+    {front:"Apa itu 'Prescription Cascade'?",back:"Memberi obat untuk mengobati efek samping obat lain. Seperti menambal tambalan — A obat → efek samping → B obat untuk efek samping A → efek samping B → C obat, dst."},
+    {front:"3 obat menurut Beer's yang harus dihindari lansia?",back:"1. Benzodiazepin jangka panjang (jatuh, pikun)<br>2. Antikolinergik (sulit BAK, delirium)<br>3. NSAID jangka panjang (perdarahan lambung, ginjal rusak)"},
+    {front:"Prinsip 'Start Low Go Slow' artinya?",back:"Mulai dengan dosis terendah, naikkan perlahan. Seperti menaiki tangga — satu anak tanggal dulu, lihat reaksi, baru naik lagi."}
+  ],
+  quiz:[
+    {q:"Perubahan distribusi obat pada lansia yang paling berpengaruh terhadap obat lipofilik adalah?",options:["Penurunan albumin","Peningkatan massa lemak","Penurunan massa otot","Penurunan air tubuh"],correct:1,exp:"↑Massa lemak menyebabkan Vd obat lipofilik meningkat → t1/2 lebih panjang & akumulasi."},
+    {q:"Rumus Cockcroft-Gault digunakan untuk?",options:["Menghitung dosis obat hati","Mengevaluasi fungsi ginjal (CrCl)","Menilai status nutrisi","Menghitung BMI"],correct:1,exp:"Cockcroft-Gault menghitung creatinine clearance untuk penyesuaian dosis obat yang diekskresi ginjal."},
+    {q:"Menurut Beer's Criteria, obat yang sebaiknya dihindari pada lansia karena risiko jatuh & delirium adalah?",options:["Parasetamol","Diphenhydramine","Metformin","Amlodipin"],correct:1,exp:"Diphenhydramine (antihistamin generasi pertama) memiliki efek antikolinergik yang menyebabkan delirium, retensi urine, dan peningkatan risiko jatuh."}
+  ]
+},
+{
+  id:5,
+  title:"Interaksi Obat dan Nutrisi",
+  subtitle:"Dampak Obat terhadap Gizi • Dampak Gizi terhadap Obat",
+  tag:"Farmako-Nutrisi",
+  stats:[{v:"5",l:"Dampak Interaksi"},{v:">2",l:"Obat = Risiko Interaksi"},{v:"Lansia",l:"Populasi Berisiko"}],
+  content:`
+    <div class="info-card academic-only">
+      <h3>⚡ Dampak Interaksi Obat-Nutrisi</h3>
+      <p>Interaksi fisik, kimia, fisiologis, atau patofisiologis yang mengubah respons terapi:</p>
+      <ul>
+        <li>Mengganggu nafsu makan & indera pengecapan/penciuman</li>
+        <li>Mengganggu kerja saluran pencernaan (mual, muntah, diare)</li>
+        <li>Mengganggu absorbsi & metabolisme zat gizi</li>
+        <li>Mempengaruhi status gizi & kesehatan</li>
+        <li>Kegagalan terapi obat / defisiensi nutrisi / efek samping</li>
+      </ul>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>💊 Efek Obat terhadap Zat Gizi</h3>
+      <table class="data-table">
+        <tr><th>Obat</th><th>Zat Gizi</th><th>Interaksi</th></tr>
+        <tr><td>Antasida (Al/Mg)</td><td>Ca, Fosfat</td><td>Kompleks → osteoporosis</td></tr>
+        <tr><td>Antibiotik (Bactrim)</td><td>Vit K</td><td>Hambat flora intestinal → defisiensi Vit K & perdarahan</td></tr>
+        <tr><td>Aspirin (kronis)</td><td>Vit C, Asam Folat</td><td>↓absorpsi Vit C; ↓serum folat</td></tr>
+        <tr><td>Antihipertensi</td><td>Kalium</td><td>Hiperkalemia bila kombinasi suplemen K</td></tr>
+        <tr><td>Terapi hormonal (estrogen)</td><td>Vit B6, Asam Folat</td><td>↓kadar folat & B6</td></tr>
+        <tr><td>INH (Isoniazid)</td><td>Vit B6</td><td>Hambat konversi B6 → defisiensi & neuropati</td></tr>
+        <tr><td>Antikonvulsan (fenobarbital)</td><td>Vit D</td><td>↑metabolisme Vit D → osteomalasia</td></tr>
+      </table>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>🍽️ Efek Makanan terhadap Obat</h3>
+      <ul>
+        <li><strong>Absorpsi meningkat:</strong> Griseofulvin (lemak), Amoksisilin</li>
+        <li><strong>Absorpsi menurun:</strong> Tetrasiklin (Ca, Mg, Fe), Bisphosphonate, Levodopa</li>
+        <li><strong>Waktu pengosongan lambung:</strong> Antikolinergik ↓; Metoklopramid ↑</li>
+        <li><strong>Obat sebelum makan:</strong> Eritromisin, PPI, domperidon, isoniazid, rifampicin</li>
+        <li><strong>Obat bersama makanan:</strong> Beta-blocker, nitrofurantoin, fenitoin, karbamazepin, acarbose, Ca/Vit D</li>
+      </ul>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Obat & Makanan — Sederhana</h4>
+      <p><strong>Bayangkan tubuh seperti dapur & obat seperti bumbu:</strong></p>
+      <ul>
+        <li><strong>Antasida + Susu/Kalsium:</strong> Seperti mencuci piring dengan sabun & minyak bersamaan — saling "ikat" & tidak jadi apa-apa. Antasida (Al/Mg) mengikat kalsium & fosfor → tulang jadi rapuh (osteoporosis).</li>
+        <li><strong>Antibiotik + Makanan:</strong> Seperti menyemprot disinfektan ke bakteri pengurai sampah. Antibiotik spektrum luas membunuh bakteri baik di usus yang membuat Vit K → risiko perdarahan.</li>
+        <li><strong>Aspirin + Jeruk:</strong> Aspirin jangka panjang menghalangi jeruk (Vit C) masuk ke sel & menghabiskan asam folat. Seperti pencuri yang merampok gudang vitamin.</li>
+        <li><strong>Isoniazid (INH) + B6:</strong> INH seperti "vampir" yang menghisap Vit B6 dari tubuh → defisiensi B6 → saraf kesemutan & nyeri (neuropati).</li>
+      </ul>
+      <div class="analogy">💡 <strong>Analogi:</strong> Obat & makanan seperti pasangan — ada yang serasi (griseofulvin + lemak), ada yang bertengkar (tetrasiklin + susu), dan ada yang mencuri (INH mencuri B6).</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: DRUG-FOOD</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">D</div><div class="m-def">Dairy ↓ absorpsi tetrasiklin</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">R</div><div class="m-def">Rifampicin = perut kosong</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">U</div><div class="m-def">Ulkus → hindari NSAID + makanan</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">G</div><div class="m-def">Grapefruit hambat CYP3A4</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">F</div><div class="m-def">Fat ↑ absorpsi griseofulvin</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">O</div><div class="m-def">Observe timing (sebelum/sesudah makan)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">O</div><div class="m-def">Oral iron + vit C, hindari teh/kopi</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">D</div><div class="m-def">Drug-induced malnutrition → monitor</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Kenapa antasida jangan dengan susu/kalsium?",back:"Antasida mengandung Al/Mg akan mengikat kalsium & fosfor di usus — seperti dua magnet yang menempel & tidak bisa diserap. Akibatnya: tulang kekurangan mineral → osteoporosis."},
+    {front:"Antibiotik jangka panjang kenapa bikin perdarahan?",back:"Membunuh bakteri baik di usus yang memproduksi Vitamin K. Vit K penting untuk pembekuan darah. Tanpa Vit K → darah sulit membeku."},
+    {front:"INH (obat TB) kenapa perlu suplemen B6?",back:"INH menghambat kerja Vit B6. Seperti vampir yang menghisap B6 dari tubuh. Tanpa B6 → saraf perifer rusak (kesemutan, nyeri, kelemahan)."},
+    {front:"Tetrasiklin kenapa tidak boleh dengan susu?",back:"Kalsium dalam susu mengikat tetrasiklin seperti penjara — obat tidak bisa diserap. Minum tetrasiklin 2 jam sebelum atau 4 jam sesudah produk susu."},
+    {front:"Griseofulvin kenapa harus dengan makanan berlemak?",back:"Griseofulvin bersifat 'suka lemak' (lipofilik). Lemak dalam makanan membantunya larut & diserap — seperti minyak yang larut dalam minyak lain."}
+  ],
+  quiz:[
+    {q:"Interaksi antasida yang mengandung aluminium dengan kalsium/fosfat dapat menyebabkan?",options:["Hiperkalsemia","Osteoporosis","Hemokromatosis","Nefrolitiasis"],correct:1,exp:"Al dan Mg dalam antasida membentuk kompleks dengan fosfat & kalsium sehingga mengurangi cadangan tulang → osteoporosis."},
+    {q:"Penggunaan antibiotik spektrum luas dalam jangka panjang dapat menyebabkan defisiensi?",options:["Vitamin A","Vitamin K","Vitamin E","Vitamin D"],correct:1,exp:"Antibiotik menghambat flora intestinal yang mensintesis vitamin K → risiko perdarahan."},
+    {q:"Obat yang absorpsinya meningkat dengan makanan berlemak adalah?",options:["Tetrasiklin","Griseofulvin","Levodopa","Bisphosphonate"],correct:1,exp:"Griseofulvin bersifat lipofilik sehingga absorpsinya meningkat signifikan dengan makanan berlemak."}
+  ]
+},
+
+{
+  id:6,
+  title:"Fungsi Kognitif & Aging",
+  subtitle:"Memori • Bahasa • Visuospasial • Atensi",
+  tag:"Neurologi Geriatri",
+  stats:[{v:"9",l:"Domain Kognitif"},{v:"Amygdala",l:"Fear & Memory"},{v:"Hippocampus",l:"Declarative Memory"}],
+  content:`
+    <div class="info-card academic-only">
+      <h3>🧠 Definisi & Domain</h3>
+      <p><strong>Kognitio = berpikir.</strong> Proses di mana semua masukan sensorik (taktil, visual, auditorik) diubah, diolah, disimpan, dan digunakan untuk penalaran.</p>
+      <p><strong>9 Domain Fungsi Kognitif (Hecker, 1998):</strong></p>
+      <div class="grid-2">
+        <ul>
+          <li>Memori</li>
+          <li>Bahasa</li>
+          <li>Praksis</li>
+          <li>Visuospasial</li>
+          <li>Atensi & Konsentrasi</li>
+        </ul>
+        <ul>
+          <li>Kalkulasi</li>
+          <li>Mengambil keputusan</li>
+          <li>Reasoning</li>
+          <li>Berpikir Abstrak</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>🎯 Struktur Otak & Fungsi Memori</h3>
+      <table class="data-table">
+        <tr><th>Struktur</th><th>Fungsi</th></tr>
+        <tr><td>Amygdala</td><td>Fear & fear memories</td></tr>
+        <tr><td>Hippocampus</td><td>Declarative & episodic memory, recognition memory</td></tr>
+        <tr><td>Cerebellum</td><td>Procedural memories (skill motorik)</td></tr>
+        <tr><td>Prefrontal cortex</td><td>Semantic tasks & executive function</td></tr>
+      </table>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>🗣️ Penilaian Bahasa</h3>
+      <ul>
+        <li><strong>Observasi:</strong> pemahaman, pengulangan kata, membaca, naming</li>
+        <li><strong>Gangguan:</strong> afasia (Broca = ekspresif; Wernicke = reseptif), dysarthria, apraxia wicara</li>
+        <li><strong>Tip:</strong> perhatikan fluensi, pemahaman instruksi, kemampuan menamai objek</li>
+      </ul>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Otak & Pikiran Lansia — Sederhana</h4>
+      <p><strong>Bayangkan otak seperti kantor pos raksasa:</strong></p>
+      <ul>
+        <li><strong>Hippocampus (Gudang Arsip):</strong> Menyimpan kenangan lama & fakta. Di lansia, gudang ini menyempit — makanya sering lupa nama, tapi kenangan masa kecil masih ada.</li>
+        <li><strong>Amygdala (Alarm Kebakaran):</strong> Mendeteksi bahaya & menyimpan ketakutan. Lansia sering lebih "was-was" karena alarm ini sensitif — tapi juga makanya trauma di masa lalu sulit dilupakan.</li>
+        <li><strong>Cerebellum (Instruktur Senam):</strong> Mengatur gerakan otomatis (bersepeda, mengetik). Di lansia, instruktur ini lelah — makanya gerakan jadi lambat & tidak stabil.</li>
+        <li><strong>Prefrontal Cortex (Manajer Kantor):</strong> Merencanakan, mengambil keputusan, mengontrol impuls. Manajer ini pensiun duluan — makanya lansia sulit membuat keputusan cepat & sering tertipu.</li>
+      </ul>
+      <div class="analogy">💡 <strong>Analogi:</strong> Otak lansia seperti kantor pos tua — gudang arsip (memori) penuh & sulit mencari, alarm sensitif (cemas), instruktur lelah (gerakan lambat), dan manajer sudah pensiun (sulit ambil keputusan).</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: COGNITION</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">C</div><div class="m-def">Calculation (kalkulasi)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">O</div><div class="m-def">Orientation (waktu, tempat, orang)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">G</div><div class="m-def">Gnosis (pengenalan objek)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">N</div><div class="m-def">Naming (bahasa)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">I</div><div class="m-def">Insight & Judgment</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Thought & Abstraction</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">I</div><div class="m-def">Intelligence & Memory</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">O</div><div class="m-def">Attention & Concentration</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">N</div><div class="m-def">Neglect (visuospasial)</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Hippocampus itu apa? (Bahasa sederhana)",back:"Gudang memori otak. Menyimpan kenangan & fakta. Di lansia, gudang ini menyempit — makanya sering lupa nama, tapi kenangan lama masih ada."},
+    {front:"Amygdala berfungsi sebagai?",back:"Alarm kebakaran otak. Mendeteksi bahaya & menyimpan rasa takut. Lansia sering lebih cemas karena alarm ini makin sensitif."},
+    {front:"Bedanya Afasia Broca & Wernicke?",back:"Broca = tahu mau ngomong apa tapi sulit mengeluarkan (non-fluen, susah). Wernicke = ngomong lancar tapi tidak masuk akal (fluen, tidak paham)."},
+    {front:"Cerebellum mengatur apa?",back:"Gerakan otomatis & keseimbangan — seperti instruktur senam. Rusak = gerakan lambat, goyang, sulit bersepeda/menyetir."},
+    {front:"Prefrontal cortex = CEO otak. Fungsinya?",back:"Merencanakan, mengambil keputusan, mengontrol impuls. Lansia: CEO ini lemah → sulit multitasking, mudah tertipu, keputusan lambat."}
+  ],
+  quiz:[
+    {q:"Struktur otak yang berperan dalam declarative & episodic memory adalah?",options:["Amygdala","Hippocampus","Cerebellum","Thalamus"],correct:1,exp:"Hippocampus berperan dalam memori deklaratif (fakta/pengetahuan) dan episodik (pengalaman pribadi)."},
+    {q:"Domain fungsi kognitif yang menilai kemampuan menggambar/meniru adalah?",options:["Memori","Praksis","Visuospasial","Kalkulasi"],correct:2,exp:"Visuospasial menilai kemampuan memahami hubungan spasial, menggambar, dan menavigasi ruang."},
+    {q:"Afasia ekspresif/non-fluen terletak di area?",options:["Area Wernicke","Area Broca","Area angularis","Korpus kalosum"],correct:1,exp:"Area Broca (inferior frontal gyrus) mengontrol produksi bahasa; kerusakan menyebabkan afasia ekspresif."}
+  ]
+},
+{
+  id:7,
+  title:"Muskuloskeletal & Kardiovaskular Aging",
+  subtitle:"Sarkopenia • Osteoporosis • Jantung • Pembuluh Darah",
+  tag:"Fisiologi Aging",
+  stats:[{v:"1%/th",l:"↓ Massa Otot >65"},{v:"1%/th",l:"↓ VO2max >25th"},{v:"208-0.7×U",l:"HRmax Formula"}],
+  content:`
+    <div class="info-card warn academic-only">
+      <h3>💪 Muskuloskeletal System</h3>
+      <p><strong>Sarkopenia:</strong> progressive loss of muscle mass & strength → ↑risiko jatuh, fraktur, mortalitas. Faktor: inaktivitas (penyebab #3 kematian), ↓hormon, ↓protein intake.</p>
+      <ul>
+        <li><strong>Perubahan:</strong> ↓fast-twitch fibers (type II), ↑slow-twitch (type I) karena reinnervation; ↓mitochondria; ↓ATP, CP, glycogen</li>
+        <li><strong>Latihan resistensi:</strong> meningkatkan strength 40-150%, lean body mass 1-3 kg, fiber area 10-30%</li>
+      </ul>
+    </div>
+    <div class="info-card academic-only">
+      <h3>🦴 Skeletal System</h3>
+      <p><strong>Osteoporosis:</strong> progressive loss of bone density → ↑fracture risk. Puncak massa tulang: 30-an. Penurunan height: ~1 cm per 10 tahun setelah 40 th.</p>
+      <ul>
+        <li><strong>Trabecular bone:</strong> kehilangan koneksi → strength ↓ drastis</li>
+        <li><strong>Joints:</strong> loss of hyaline cartilage, ↓water, ↑Ca salts, crosslinking → stiff (osteoarthritis)</li>
+        <li><strong>Fracture risk:</strong> applied load > bone strength → fracture</li>
+      </ul>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>❤️ Cardiovascular Aging</h3>
+      <table class="data-table">
+        <tr><th>Parameter</th><th>Perubahan</th><th>Klinis</th></tr>
+        <tr><td>Cardiac reserve</td><td>↓1%/tahun setelah 30th</td><td>↓toleransi aktivitas</td></tr>
+        <tr><td>Max HR</td><td>↓~1 bpm/tahun</td><td>HRmax = 208 - 0.7×usia</td></tr>
+        <tr><td>Stroke volume</td><td>↓ (tapi bisa dipertahankan dengan latihan)</td><td>↓cardiac output saat exercise</td></tr>
+        <tr><td>Arteries</td><td>Arteriosclerosis + atherosclerosis</td><td>↑BP, ↓compliance, ↑LVH</td></tr>
+        <tr><td>Varicose veins</td><td>↓valve competence, ↓tonus dinding</td><td>Venous stasis, ulcer</td></tr>
+      </table>
+      <p><strong>CO = HR × SV</strong>. Cardiac reserve = perbedaan resting vs maximal CO. Jantung 20 th: 10× kebutuhan dasar; setelah 30 th berkurang ~1%/tahun.</p>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Otot, Tulang & Jantung Lansia — Sederhana</h4>
+      <p><strong>Otot (Sarkopenia):</strong> Seperti rumah yang tiang penyangga berkurang. Dulu 100 tiang, sekarang 70. Makanya mudah jatuh & sulit bangkit. Solusi: latihan beban (resistensi) = menambah tiang baru!</p>
+      <p><strong>Tulang (Osteoporosis):</strong> Seperti sarang tawon yang dindingnya tipis. Dulu tebal & kuat, sekarang berlubang-lubang. Makanya patah tulang pinggul sering terjadi. Solusi: kalsium + vit D + latihan.</p>
+      <p><strong>Jantung:</strong> Seperti pompa air tua. Dulu kuat memompa 10× kebutuhan, sekarang hanya 3-4×. Makanya mudah sesak & lelah. Tapi latihan bisa mempertahankan kemampuan pompa ini.</p>
+      <div class="analogy">💡 <strong>Analogi:</strong> Tubuh lansia seperti bangunan tua — tiang (otot) berkurang, dinding (tulang) berlubang, dan pompa (jantung) lemah. Renovasi: latihan + nutrisi + cek rutin.</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: HEART OLD</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">H</div><div class="m-def">HRmax menurun (208 - 0.7×age)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">E</div><div class="m-def">Ejection fraction ↓ saat stress</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Arteriosclerosis (kaku)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">R</div><div class="m-def">Reserve cardiac ↓ 1%/th</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Tonus vena ↓ → varises</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">O</div><div class="m-def">Output ↓ saat peak exercise</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">L</div><div class="m-def">LVH akibat ↑afterload</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">D</div><div class="m-def">Diastolic dysfunction umum</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Sarkopenia itu apa? (Sederhana)",back:"Pengecilan otot karena usia. Seperti rumah yang tiang penyangga berkurang. Akibatnya: mudah jatuh, lemah, sulit naik tangga. Solusi: latihan beban + protein cukup."},
+    {front:"Kenapa tulang lansia mudah patah?",back:"Osteoporosis = tulang jadi berlubang-lubang seperti sarang tawon tua. Puncak tulang kuat di usia 30-an, setelah itu menipis. Perempuan pasca-menopause lebih cepat karena hormon pelindung (estrogen) hilang."},
+    {front:"HRmax = 208 - 0.7×usia. Artinya?",back:"Detak jantung maksimum menurun seiring usia. Lansia 70 th: HRmax = 208 - 49 = 159 bpm. Jangan paksa lansia berolahraga seperti muda!"},
+    {front:"Cardiac reserve itu apa?",back:"Cadangan kemampuan jantung. Dulu 10× kebutuhan dasar, lansia mungkin hanya 3×. Makanya lansia mudah sesak saat aktivitas ringan."},
+    {front:"Bedanya Osteoporosis & Osteoarthritis?",back:"Osteoporosis = TULANG berlubang & rapuh (patah). Osteoarthritis = SENDI rusak (tulang rawan habis) → nyeri & kaku."}
+  ],
+  quiz:[
+    {q:"Penurunan massa otot progresif pada lansia disebut?",options:["Osteoporosis","Sarkopenia","Osteoarthritis","Kacheksia"],correct:1,exp:"Sarkopenia adalah kehilangan massa, kekuatan, dan fungsi otot yang terkait dengan usia."},
+    {q:"Rumus perkiraan maximal heart rate pada lansia adalah?",options:["220 - usia","208 - 0.7 × usia","200 - usia","190 - 0.5 × usia"],correct:1,exp:"HRmax = 208 - 0.7 × usia adalah estimasi yang lebih akurat untuk populasi lansia dibanding 220-usia."},
+    {q:"Puncak bone mass (massa tulang puncak) tercapai pada usia?",options:["20-25 tahun","30-an tahun","40-45 tahun","50 tahun"],correct:1,exp:"Peak bone mass dicapai pada usia 30-an; setelah itu terjadi penurunan gradual yang dipercepat pada wanita post-menopause."}
+  ]
+},
+
+{
+  id:8,
+  title:"Fisiologi Aging: Respirasi, GI & Integumen",
+  subtitle:"Paru • Saluran Cerna • Kulit/Rambut/Kuku",
+  tag:"Fisiologi Aging",
+  stats:[{v:"1%/th",l:"↓ VC & FEV1"},{v:"↑",l:"Residual Volume"},{v:"30-40%",l:"↓ Liver Function"}],
+  content:`
+    <div class="info-card warn academic-only">
+      <h3>🫁 Respiratory System</h3>
+      <p><strong>Perubahan:</strong> ↓elasticity paru & dinding toraks, ↓ciliary activity, atrofi otot interkostal → ↓VC, ↓FEV1, ↑RV, RV:TLC ↑.</p>
+      <ul>
+        <li><strong>Vital capacity (VC)</strong> & <strong>FEV1</strong> ↓ linear dengan usia</li>
+        <li><strong>Residual volume (RV)</strong> ↑ karena trapped air</li>
+        <li><strong>TLC</strong> relatif unchanged; <strong>RV:TLC</strong> ↑ (less air exchanged)</li>
+        <li><strong>V̇Emax</strong> ↓ setelah maturity</li>
+        <li>Aging alone ↓VO2max 2-5%/dekade; inaktivitas ↓10%/dekade</li>
+      </ul>
+      <p><strong>Klinis:</strong> ↓stamina, dyspnea, ↑anxiety, ↑risiko pneumonia</p>
+    </div>
+    <div class="info-card academic-only">
+      <h3>🍽️ Gastrointestinal Tract</h3>
+      <table class="data-table">
+        <tr><th>Organ</th><th>Perubahan</th><th>Klinis</th></tr>
+        <tr><td>Esofagus</td><td>↓kontraktilitas, ↓LES tone, ↓clearance asam</td><td>Dysphagia, GERD, aspirasi</td></tr>
+        <tr><td>Lambung</td><td>↓sekresi HCl, faktor intrinsik, pepsin; ↓motilitas</td><td>↓absorpsi B12, Fe, Ca; atrofi gastrik</td></tr>
+        <tr><td>Hati</td><td>↓size 30-40%, ↓blood flow, ↓CYP, ↓albumin</td><td>↓metabolisme obat; ↑risiko hepatotoksisitas</td></tr>
+        <tr><td>Pankreas</td><td>Exocrine/endocrine ↓ sedikit; ↑kanker pankreas >65th</td><td>↑mortalitas pankreatitis (20% vs 10%)</td></tr>
+        <tr><td>Gallbladder</td><td>Bile lebih lithogenic, ↓contractility</td><td>↑kolesistitis, kolangitis</td></tr>
+        <tr><td>Kolon</td><td>↓myenteric neurons, ↓Ca influx, ↓tensile strength</td><td>Konstipasi, divertikulosis, inkontinensia</td></tr>
+      </table>
+      <p><strong>Hot Topics:</strong> overuse PPI → ↑pneumonia, hip fracture, C. difficile; GI bleeding 75% upper tract (50% NSAID, 50% ulkus/erosi)</p>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>🧴 Skin, Hair & Nails</h3>
+      <ul>
+        <li><strong>Kulit:</strong> ↓kolagen, elastin, subkutan → wrinkles, sagging, ↓barrier, ↑bruising, pressure ulcer risk</li>
+        <li><strong>Rambut:</strong> ↓melanin → uban; ↓folikel → alopecia; pria: ↑nose/ear hair; wanita: ↑facial hair (testosteron relatif ↑)</li>
+        <li><strong>Kuku:</strong> dull, brittle, ridged, thickened, slower growth</li>
+        <li><strong>Pressure ulcer:</strong> ↑risiko pada imobilisasi, inanition, inkontinensia</li>
+      </ul>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Paru, Pencernaan & Kulit Lansia — Sederhana</h4>
+      <p><strong>Paru-paru:</strong> Seperti balon tua yang karetnya kendor. Dulu bisa mengembang & mengempis besar, sekarang kecil & kaku. Sisa udara terjebak (RV naik) → sesak & mudah batuk.</p>
+      <p><strong>Pencernaan:</strong></p>
+      <ul>
+        <li><strong>Lambung:</strong> Seperti mesin cuci tua — air pencuci (asam lambung) berkurang. Makanan tidak hancur sempurna → kembung & malnutrisi.</li>
+        <li><strong>Hati:</strong> Seperti pabrik penyaring tua — ukuran & tenaga turun 30-40%. Obat yang biasa dihancurkan jadi menumpuk → racun.</li>
+        <li><strong>Kolon:</strong> Seperti selang air tua — dinding kaku, aliran lambat. Akibatnya: susah BAB (konstipasi) & sering kentut/kembung.</li>
+      </ul>
+      <p><strong>Kulit:</strong> Seperti karet gelang tua — kendor, pucat, mudah putus. Rambut seperti tanaman yang kekurangan pupuk — uban, rontok, tumbuh di tempat aneh (hidung/telinga pria).</p>
+      <div class="analogy">💡 <strong>Analogi:</strong> Paru = balon kendor, Lambung = mesin cuci lemah, Hati = pabrik kecil, Kolon = selang mampet, Kulit = karet tua.</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: BREATH-GUT-SKIN</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">B</div><div class="m-def">Barrel chest (↑AP diameter)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">R</div><div class="m-def">Residual volume ↑</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">E</div><div class="m-def">Elasticity ↓ paru & toraks</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Acid clearance ↓ (GERD)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Tremor/tremor (bukan, tapi Tetap aktif!)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">H</div><div class="m-def">HCl ↓ → B12 & Fe malabsorpsi</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Kenapa lansia sering sesak & batuk?",back:"Paru jadi kaku seperti balon tua. Sisa udara terjebak (RV naik) & kapasitas paru menurun (VC turun). Dulu bisa lari, sekarang naik tangga 1 lantai sesak."},
+    {front:"Kenapa lansia sering konstipasi?",back:"Otot usus (kolon) lemah & saraf penggerak berkurang. Seperti selang air tua — aliran lambat & sering mampet. Solusi: serat + air cukup + olahraga."},
+    {front:"PPI (obat maag) overuse bahaya untuk lansia?",back:"Ya! PPI menurunkan asam lambung → bakteri berkembang biak & naik ke paru (pneumonia), tulang jadi rapuh (fraktur), & bakteri jahat C. difficile berkembang."},
+    {front:"Hati lansia seperti apa?",back:"Pabrik penyaring tua — ukuran & tenaga turun 30-40%. Obat yang biasa dihancurkan jadi menumpuk. Makanya dosis obat harus dikurangi & hati-hati hepatotoksisitas."},
+    {front:"Kenapa kulit lansia mudah lecet & memar?",back:"Kolagen & elastin berkurang (pegas kulit rusak) + lemak bantalan tipis. Seperti kertas tisu basah — tipis, mudah robek, & memar tanpa benturan keras."}
+  ],
+  quiz:[
+    {q:"Parameter paru yang meningkat pada lansia adalah?",options:["Vital capacity","FEV1","Residual volume","FVC"],correct:2,exp:"Residual volume (RV) meningkat karena trapped air akibat kehilangan elastisitas paru dan collapse bronkiolus."},
+    {q:"Penggunaan PPI jangka panjang pada lansia berisiko menyebabkan komplikasi berikut kecuali?",options:["Pneumonia","Fraktur hip","Kolitis C. difficile","Anemia hemolitik"],correct:3,exp:"Overuse PPI dikaitkan dengan ↑insiden pneumonia, hip fracture, dan C. difficile infection, namun bukan anemia hemolitik."},
+    {q:"Penurunan sekresi faktor intrinsik pada lansia menyebabkan malabsorpsi?",options:["Zat besi","Vitamin B12","Vitamin D","Kalsium"],correct:1,exp:"Faktor intrinsik diperlukan untuk absorpsi Vit B12 di ileum terminal; penurunannya → defisiensi B12 & anemia megaloblastik."}
+  ]
+},
+{
+  id:9,
+  title:"Aspek Sosial & P3G pada Geriatri",
+  subtitle:"Comprehensive Geriatric Assessment • QOL • Stress",
+  tag:"Psikososial Geriatri",
+  stats:[{v:"P3G",l:"Pengkajian Paripurna"},{v:"QOL",l:"Quality of Life"},{v:"FFM",l:"Big Five Personality"}],
+  content:`
+    <div class="info-card academic-only">
+      <h3>👥 Karakteristik Pasien Geriatri</h3>
+      <p><strong>Bukan pasien dewasa + usia.</strong> Memiliki karakteristik khas: multipathology, atypical presentation, polifarmasi, frailty, ↓functional reserve.</p>
+      <ul>
+        <li><strong>P3G (Pengkajian Paripurna Pasien Geriatri):</strong> multidimensional & interdisciplinary</li>
+        <li><strong>Komponen:</strong> medik, fungsional, kognitif (demensia), emosi/afek (depresi), sosial, obat</li>
+        <li><strong>Tujuan:</strong> derajat kesehatan optimal & kemampuan fungsional tertinggi (bukan sekedar obati organ)</li>
+      </ul>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>🧠 Stress & Kualitas Hidup</h3>
+      <p><strong>Stressful life events:</strong> sakit, kematian pasangan, kehilangan peran sosial → ↑kortisol, ↑katekolamin → ↓imunitas, ↑morbiditas.</p>
+      <ul>
+        <li><strong>Resilience:</strong> kemampuan pulih dari keterpurukan; dipengaruhi optimism, social support, religiusitas</li>
+        <li><strong>Overprotection:</strong> dapat mengikis otonomi & kemandirian → ↓kesejahteraan</li>
+        <li><strong>Social relationships:</strong> berkorelasi dengan ↓morbiditas kardiovaskular, ↑well-being, ↑longevity</li>
+      </ul>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>📊 Quality of Life (QOL)</h3>
+      <p>2 domain tumpang tindih:</p>
+      <ul>
+        <li><strong>Health-related QOL:</strong> fungsi sehari-hari, mobilitas, mandi, pakaian, sensori, mood, nyeri</li>
+        <li><strong>Environment-based QOL:</strong> ekonomi, perumahan, stabilitas komunitas, akses seni/hiburan, spiritual</li>
+      </ul>
+      <p><strong>Big Five Personality (FFM):</strong> Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism → relatif stabil sampai usia lanjut.</p>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Aspek Sosial Lansia — Sederhana</h4>
+      <p><strong>P3G itu apa?</strong> Seperti "general check-up super lengkap" — tidak hanya periksa jantung/paru, tapi juga:</p>
+      <ul>
+        <li><strong>Bisa jalan/mandi/sendiri nggak?</strong> (Status Fungsional)</li>
+        <li><strong>Masih ingat nama anak nggak?</strong> (Status Kognitif)</li>
+        <li><strong>Masih semangat hidup?</strong> (Status Emosi — cek depresi)</li>
+        <li><strong>Tinggal sendiri/ditemani siapa?</strong> (Status Sosial)</li>
+        <li><strong>Minum obat berapa macam?</strong> (Status Obat)</li>
+      </ul>
+      <p><strong>Stress pada Lansia:</strong> Seperti pohon yang diterpa badai terus-menerus — kehilangan pasangan, sakit, pensiun, anak merantau. Hormon stres (kortisol) naik terus → imun lemah & sakit.</p>
+      <p><strong>Resilience:</strong> Seperti pohon bambu — lentur & tidak patah saat angin kencang. Dipengaruhi oleh: optimisme, dukungan keluarga, & kegiatan spiritual.</p>
+      <div class="analogy">💡 <strong>Analogi:</strong> Lansia seperti pohon tua — butuh pemeriksaan akar sampai daun (P3G), perlindungan dari badai (social support), & fleksibilitas bambu (resilience) untuk tetap tegak.</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: SOCIAL OLD</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">S</div><div class="m-def">Support system (keluarga, caregiver)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">O</div><div class="m-def">Overprotection → hindari</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">C</div><div class="m-def">Cognition & mood (GDS, MMSE)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">I</div><div class="m-def">Independence (ADL, IADL)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Activities & engagement</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">L</div><div class="m-def">Living environment & finance</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"P3G itu apa? (Sederhana)",back:"Pemeriksaan lengkap lansia — bukan cek jantung/paru saja, tapi juga: bisa mandi/sendiri? Masih ingat? Depresi? Tinggal sama siapa? Minum obat berapa?"},
+    {front:"Kenapa overprotection (terlalu dilindungi) buruk untuk lansia?",back:"Seperti burung dalam sangkar — aman tapi sayapnya lemah. Lansia perlu otonomi (kebebasan) untuk tetap merasa hidup berarti. Terlalu dilindungi = cepat pikun & depresi."},
+    {front:"Resilience artinya?",back:"Kemampuan 'bangkit' dari keterpurukan. Seperti bola karet — dijatuhkan tapi melambung lagi. Dipengaruhi optimisme, dukungan sosial, & kegiatan spiritual/keagamaan."},
+    {front:"Big Five Personality (FFM) — sebutkan 3!",back:"Openness (terbuka), Conscientiousness (tekun), Extraversion (sosial), Agreeableness (ramah), Neuroticism (cemas). Stabil sampai tua."},
+    {front:"QOL (Quality of Life) lansia terdiri dari?",back:"1. Kesehatan (bisa jalan, mandi, tidak nyeri)<br>2. Lingkungan (rumah layak, ekonomi cukup, tetangga baik, spiritual terpenuhi)"}
+  ],
+  quiz:[
+    {q:"Komponen P3G yang menilai kemampuan mandi, berpakaian, dan mobilitas adalah?",options:["Status medik","Status fungsional","Status kognitif","Status emosi"],correct:1,exp:"Status fungsional menilai ADL (Activities of Daily Living) dan IADL (Instrumental ADL) menggunakan skor Barthel atau Katz."},
+    {q:"Faktor yang melindungi lansia dari dampak negatif stress disebut?",options:["Resilience","Vulnerability","Frailty","Sarkopenia"],correct:0,exp:"Resilience adalah kemampuan individu untuk pulih dari keterpurukan atau stress; dipengaruhi oleh optimisme, social support, dan religiusitas."},
+    {q:"Lima faktor model kepribadian (FFM) yang relatif stabil sampai usia lanjut meliputi kecuali?",options:["Openness","Conscientiousness","Neuroticism","Psychoticism"],correct:3,exp:"Big Five Personality: Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism. Psychoticism bukan bagian dari FFM."}
+  ]
+},
+{
+  id:10,
+  title:"Gangguan Keseimbangan & Imobilitas",
+  subtitle:"13-I • Etiologi • Komplikasi • Rehabilitasi",
+  tag:"Geriatri Klinis",
+  stats:[{v:"13-I",l:"Komplikasi Imobilisasi"},{v:"3 hari",l:"Maksimal Tirah Baring"},{v:"60%",l:"↑ Risiko Jatuh BZD"}],
+  content:`
+    <div class="info-card warn academic-only">
+      <h3>🚨 13-I: Komplikasi Imobilisasi</h3>
+      <p>Tirah baring >3 hari berbahaya! Komplikasi sistemik:</p>
+      <div class="grid-2">
+        <ul>
+          <li><strong>I</strong>mmobility → deconditioning</li>
+          <li><strong>I</strong>ntellectual impairment → delirium</li>
+          <li><strong>I</strong>solation → depresi</li>
+          <li><strong>I</strong>ncontinence → inkontinensia</li>
+          <li><strong>I</strong>mpotence → disfungsi seksual</li>
+          <li><strong>I</strong>mmunodeficiency → infeksi</li>
+          <li><strong>I</strong>mpaction → fekal impaksi</li>
+        </ul>
+        <ul>
+          <li><strong>I</strong>atrogenic → efek obat/terapi</li>
+          <li><strong>I</strong>nsomnia → gangguan tidur</li>
+          <li><strong>I</strong>mpairment of vision</li>
+          <li><strong>I</strong>mpairment of hearing</li>
+          <li><strong>I</strong>mpairment of taste/smell</li>
+          <li><strong>I</strong>mpairment of communication</li>
+          <li><strong>I</strong>mpairment of skin integrity → dekubitus</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info-card academic-only">
+      <h3>⚠️ Etiologi Gangguan Keseimbangan</h3>
+      <table class="data-table">
+        <tr><th>Kategori</th><th>Penyebab</th></tr>
+        <tr><td>Muskuloskeletal</td><td>Artritis, osteoporosis, fraktur, podiatric problem, Paget's disease</td></tr>
+        <tr><td>Neurologis</td><td>Stroke, Parkinson, TIA, neuropati, cerebellar dysfunction</td></tr>
+        <tr><td>Kardiovaskular</td><td>Gagal jantung, aritmia, stenosis aorta, hipotensi ortostatik, sinkop</td></tr>
+        <tr><td>Penyakit paru</td><td>PPOK berat → dispnea saat aktivitas</td></tr>
+        <tr><td>Faktor sensoris</td><td>Gangguan penglihatan, vestibular, proprioception</td></tr>
+        <tr><td>Lingkungan</td><td>Lantai licin, penerangan kurang, wc jongkok, tanpa pegangan</td></tr>
+        <tr><td>Obat</td><td>Diuretik, antidepresan trisiklik, sedativa, antipsikotik, hipoglikemik, alkohol</td></tr>
+      </table>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>🏥 Geriatric Rehabilitation: ABCs</h3>
+      <ul>
+        <li><strong>A:</strong> Aspiration, Anorexia, inActivity → mobilisasi dini, posisi 30°</li>
+        <li><strong>B:</strong> Bedsores → reposisi 2 jam, matras pressure relief</li>
+        <li><strong>C:</strong> Constipation, Contractures, Cognition → fiber, range of motion exercise, orientasi</li>
+        <li><strong>D:</strong> DVT, Depression → DVT prophylaxis, screening depresi (GDS)</li>
+        <li><strong>E:</strong> Else (UTI, pneumonia, pain, incontinence)</li>
+      </ul>
+      <p class="warn-text text-center mt-1" style="font-weight:700">"Don't let Fall be your last trip"</p>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Imobilisasi & Jatuh pada Lansia — Sederhana</h4>
+      <p><strong>13-I Komplikasi:</strong> Seperti mobil yang diparkir terlalu lama — semua mesin rusak:</p>
+      <ul>
+        <li><strong>Otot (Immobility):</strong> Seperti perangko yang tidak pernah digunakan — kaku & lemah. Dulu bisa jalan, sekarang susah berdiri.</li>
+        <li><strong>Pikiran (Intellectual):</strong> Seperti baterai HP yang tidak di-charge — cepat habis (delirium/pikun).</li>
+        <li><strong>Kulit (Bedsores):</strong> Seperti buah yang ditekan meja — bagian bawah membusuk. Solusi: pindah posisi tiap 2 jam.</li>
+        <li><strong>Usus (Constipation):</strong> Seperti sungai yang tidak mengalir — lumpur menumpuk. Solusi: serat + air + gerak.</li>
+        <li><strong>Darah (DVT):</strong> Seperti air es dalam gelas — diam lama jadi beku. Solusi: gerakkan kaki, kompresi stoking.</li>
+      </ul>
+      <p><strong>Jatuh:</strong> Seperti pohon tua yang akarnya lemah + angin kencang (obat penenang) + tanah licin (lantai licin). Pencegahan: perkuat akar (latihan kaki), kurangi angin (kurangi obat yang bikin pusing), & ratakan tanah (pasang pegangan).</p>
+      <div class="analogy">💡 <strong>Analogi:</strong> Tirah baring >3 hari seperti mobil diparkir 1 tahun — aki soak, ban kempes, mesin berkarat, & cat pudar. Mobil lansia harus tetap "dihidupkan" tiap hari!</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: FALL RISK</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">F</div><div class="m-def">Foot problem (podiatric)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Arrhythmia / Aorta stenosis</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">L</div><div class="m-def">Low BP (orthostatic)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">L</div><div class="m-def">Light (penerangan) & Layout</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">R</div><div class="m-def">Recreation (aktivitas) ↓</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">I</div><div class="m-def">Imbalance (vestibular, cerebellar)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">S</div><div class="m-def">Sedatives / Sleep pills</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">K</div><div class="m-def">K (Potassium) & Kidney (dehidrasi)</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Kenapa tirah baring >3 hari berbahaya?",back:"Seperti mobil diparkir lama — semua mesin rusak. 13-I: otot lemah, pikun, luka tekan, konstipasi, bekuan darah, depresi, infeksi, dll."},
+    {front:"13-I komplikasi imobilisasi — sebutkan 5!",back:"Immobility, Intellectual (delirium), Isolation (depresi), Incontinence, Impotence, Immunodeficiency, Impaction, Iatrogenic, Insomnia, Impairment (vision, hearing, taste, communication, skin)."},
+    {front:"Pencegahan jatuh pada lansia seperti apa?",back:"Seperti pohon tua yang perlu perkuat akar (latihan kaki), kurangi angin (obat penenang/pusing), & ratakan tanah (lantai rata, penerangan terang, pegangan)."},
+    {front:"Rehabilitasi geriatri ABCs — A untuk apa?",back:"A = Aspiration (jangan sampai masuk paru), Anorexia (makan), inActivity (gerak!). Solusi: posisi 30° saat makan, makanan menarik, & mobilisasi dini."},
+    {front:"Obat apa yang paling sering bikin lansia jatuh?",back:"Obat yang bikin pusing/ngantuk: Benzodiazepin (penenang), antidepresan trisiklik, antipsikotik, diuretik (mual/dehidrasi), & obat tidur."}
+  ],
+  quiz:[
+    {q:"Maksimal waktu tirah baring yang aman pada lansia agar tidak terjadi deconditioning adalah?",options:["1 hari","3 hari","7 hari","14 hari"],correct:1,exp:"Tirah baring >3 hari dapat menyebabkan deconditioning multisistem (13-I) yang memperberat kondisi pasien."},
+    {q:"Komplikasi imobilisasi yang termasuk kategori psikologis adalah?",options:["Dekubitus","DVT","Delirium","Konstipasi"],correct:2,exp:"Delirium (sensory deprivation) adalah komplikasi psikologis akibat imobilisasi dan isolasi."},
+    {q:"Obat yang paling berkontribusi terhadap risiko jatuh pada lansia adalah?",options:["Antibiotik","Antidepresan trisiklik","Vitamin D","Antasida"],correct:1,exp:"Antidepresan trisiklik memiliki efek antikolinergik & sedatif yang menyebabkan hipotensi ortostatik, penglihatan kabur, dan ↓koordinasi."}
+  ]
+},
+{
+  id:11,
+  title:"Nutrisi pada Orang Lanjut Usia",
+  subtitle:"MNA • Kebutuhan Energi • Protein • Mikronutrien",
+  tag:"Gizi Geriatri",
+  stats:[{v:"MNA",l:"Mini Nutritional Assessment"},{v:"30",l:"Kkal/kgBB Laki-laki"},{v:"25",l:"Kkal/kgBB Perempuan"}],
+  content:`
+    <div class="info-card academic-only">
+      <h3>🍎 Perubahan Fisiologis & Masalah Gizi</h3>
+      <p><strong>Perubahan komposisi tubuh:</strong> ↓massa otot → BMR ↓; ↑lemak; ↓total body water.</p>
+      <ul>
+        <li><strong>Saluran cerna:</strong> ↓sekresi saliva, HCl, faktor intrinsik, pepsin → ↓absorpsi B12, Fe, Ca</li>
+        <li><strong>Hati:</strong> ↓sintesis albumin, ↓metabolisme obat</li>
+        <li><strong>Ginjal:</strong> ↓GFR → ↓eksresi</li>
+      </ul>
+      <p><strong>Masalah gizi:</strong> obesitas (65-74 th), KEK, kurang zat gizi mikro (Fe, vit A, B, C, D, E, Mg, Ca, Zn)</p>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>📋 Skrining & Penilaian Status Gizi</h3>
+      <p><strong>MNA (Mini Nutritional Assessment):</strong> skrining risiko malnutrisi pada lansia.</p>
+      <table class="data-table">
+        <tr><th>Skor</th><th>Interpretasi</th></tr>
+        <tr><td>24-30</td><td>Status gizi baik</td></tr>
+        <tr><td>17-23,5</td><td>Berisiko malnutrisi</td></tr>
+        <tr><td>&lt;17</td><td>Malnutrisi</td></tr>
+      </table>
+      <p><strong>Instrumen lain:</strong> MST, MUST, NRS-2002, GNRI</p>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>🥗 Kebutuhan Zat Gizi Lansia</h3>
+      <table class="data-table">
+        <tr><th>Zat Gizi</th><th>Rekomendasi</th><th>Catatan Khusus</th></tr>
+        <tr><td>Energi</td><td>L: 30 kkal/kgBB; P: 25 kkal/kgBB</td><td>Gunakan BB ideal; ↓BMR & aktivitas</td></tr>
+        <tr><td>Protein</td><td>0,8-1 g/kgBB (10-15% KET)</td><td>Sehat >65th: 1-1,2 g; akut/kronis: 1,2-1,5 g</td></tr>
+        <tr><td>Lemak</td><td>20-35% KET; n-6:n-3 = 5-8:1</td><td>Kolesterol &lt;300 mg; omega-3 ↑kognitif</td></tr>
+        <tr><td>Karbohidrat</td><td>45-65% KET</td><td>Serat 10-14 g/1000 kkal (25 g/hari)</td></tr>
+        <tr><td>Cairan</td><td>25-30 mL/kgBB (min 1500 mL)</td><td>Risiko dehidrasi ↑ (↓rasa haus, ↓resorpsi ginjal)</td></tr>
+        <tr><td>Vit D</td><td>800-1000 IU/hari</td><td>↓sintesis kulit, ↓aktivasi ginjal</td></tr>
+        <tr><td>Vit B12</td><td>2,4 μg/hari</td><td>↓faktor intrinsik → suplementasi</td></tr>
+        <tr><td>Kalsium</td><td>1000-1200 mg/hari</td><td>↓absorpsi usus, ↓estrogen</td></tr>
+      </table>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Nutrisi Lansia — Sederhana</h4>
+      <p><strong>MNA (Cek Gizi):</strong> Seperti cek raport sekolah — nilai 24-30 = lulus, 17-23 = perlu bimbingan, &lt;17 = tidak naik kelas (malnutrisi).</p>
+      <p><strong>Kebutuhan Energi:</strong></p>
+      <ul>
+        <li><strong>Laki-laki:</strong> 30 kkal/kgBB. Seperti bensin mobil — lansia butuh lebih sedikit karena mesin (otot) lebih kecil.</li>
+        <li><strong>Perempuan:</strong> 25 kkal/kgBB. Seperti motor matic — lebih irit.</li>
+      </ul>
+      <p><strong>Protein:</strong> Seperti bata untuk bangun rumah. Lansia butuh 1-1,2 g/kgBB (lebih dari dewasa!). Tanpa protein cukup = otot hancur (sarkopenia) & luka sulit sembuh.</p>
+      <p><strong>Vitamin D + Kalsium:</strong> Seperti semen & batu bata untuk tulang. Lansia sulit membuat Vit D dari sinar matahari & sulit menyerap kalsium → tulang rapuh. Solusi: suplemen + sinar matahari pagi.</p>
+      <p><strong>Cairan:</strong> Lansia sering tidak haus padahal butuh 1,5-2 liter/hari. Seperti mobil yang tidak ada indikator bensin — harus isi rutin walaupun tidak merasa habis.</p>
+      <div class="analogy">💡 <strong>Analogi:</strong> Tubuh lansia seperti rumah tua — butuh bata (protein) untuk perbaikan, semen (kalsium/Vit D) untuk fondasi, & air (cairan) untuk pipa. Tanpa perawatan, rumah roboh (frailty).</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: NUTRITION-OLD</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">N</div><div class="m-def">Nutritional screening (MNA) rutin</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">U</div><div class="m-def">Understand chewing ability (tekstur makanan)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Texture modification jika disfagia</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">R</div><div class="m-def">Resistive exercise + protein ↑</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">I</div><div class="m-def">Individualized caloric need (25-30 kkal/kg)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Thirst mechanism ↓ → monitor intake</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">I</div><div class="m-def">Incontinence → nutrisi tetap terjaga</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">O</div><div class="m-def">Oral hygiene sebelum & sesudah makan</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">N</div><div class="m-def">No skipping meals (3 besar + 3 selingan)</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"MNA itu apa? (Sederhana)",back:"Cek raport gizi lansia. Skor 24-30 = baik, 17-23 = perlu perhatian, <17 = malnutrisi. Seperti cek nilai ujian — tahu di mana yang perlu dibenahi."},
+    {front:"Kenapa lansia butuh protein lebih banyak?",back:"Seperti rumah tua yang sering perlu perbaikan — bata (protein) harus cukup untuk memperbaiki otot & luka. Tanpa protein = otot hancur (sarkopenia)."},
+    {front:"Vit D + Kalsium untuk lansia seperti?",back:"Semen & batu bata untuk fondasi rumah. Lansia sulit membuat Vit D dari sinar matahari & sulit serap kalsium → tulang rapuh. Wajib suplemen!"},
+    {front:"Kenapa lansia sering dehidrasi tanpa sadar?",back:"Mekanisme haus rusak seperti mobil tanpa indikator bensin. Lansia tidak merasa haus padahal tubuh kering. Solusi: minum rutin 1,5-2 liter/hari meski tidak haus."},
+    {front:"Berapa kebutuhan cairan lansia minimal?",back:"25-30 mL/kgBB, minimal 1500 mL/hari. Seperti tanaman — meski tidak terlihat layu, akar butuh air rutin."}
+  ],
+  quiz:[
+    {q:"Skor MNA yang menunjukkan malnutrisi adalah?",options:["24-30","17-23,5","<17","12-15"],correct:2,exp:"Skor MNA <17 menunjukkan malnutrisi; 17-23,5 berisiko malnutrisi; 24-30 status gizi baik."},
+    {q:"Kebutuhan protein lansia sehat >65 tahun menurut ESPEN adalah?",options:["0,8 g/kg/hari","1-1,2 g/kg/hari","1,5-2 g/kg/hari","2,5 g/kg/hari"],correct:1,exp:"ESPEN merekomendasikan protein 1-1,2 g/kgBB/hari untuk lansia sehat >65 tahun untuk mencegah sarkopenia."},
+    {q:"Faktor utama yang menyebabkan lansia berisiko dehidrasi adalah?",options:["Peningkatan rasa haus","Penurunan mekanisme rasa haus & resorpsi ginjal","Peningkatan intake cairan","Peningkatan GFR"],correct:1,exp:"Lansia mengalami penurunan mekanisme rasa haus dan kemampuan resorpsi ginjal sehingga berisiko dehidrasi meski tidak merasa haus."}
+  ]
+},
+{
+  id:12,
+  title:"Presbikusis & Gangguan Pendengaran",
+  subtitle:"Tuli Sensorineural • Diagnosis • Rehabilitasi",
+  tag:"THT Geriatri",
+  stats:[{v:">60th",l:"Onset Presbikusis"},{v:"Simetris",l:"Bilateral"},{v:"↑ nada",l:"Tinitus"}],
+  content:`
+    <div class="info-card academic-only">
+      <h3>👂 Presbikusis (Presbycusis)</h3>
+      <p><strong>Definisi:</strong> berkurangnya kemampuan mendengar pada lansia akibat degenerasi organ pendengaran. <strong>Karakteristik:</strong></p>
+      <ul>
+        <li>Tuli <span class="def-term">sensorineural<span class="def-popup">Kerusakan pada koklea atau saraf pendengaran, bukan pada konduksi tulang/telinga luar</span></span> (saraf)</li>
+        <li>Berangsur-angsur & progresif</li>
+        <li>Simetris bilateral</li>
+        <li>Frekuensi tinggi terlebih dahulu (4000-8000 Hz)</li>
+        <li>Kesulitan memahami percakapan di keramaian</li>
+        <li>Tinitus nada tinggi sering menyertai</li>
+      </ul>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>🔬 Patofisiologi & Faktor Risiko</h3>
+      <table class="data-table">
+        <tr><th>Tipe</th><th>Letak Lesi</th><th>Karakteristik Audiometri</th></tr>
+        <tr><td>Sensori (Presbikusis klasik)</td><td>Atrofi sel rambut koklea</td><td>↓frekuensi tinggi secara bertahap</td></tr>
+        <tr><td>Neural</td><td>Atrofi neuron jalur pendengaran</td><td>↓speech discrimination parah</td></tr>
+        <tr><td>Metabolik (Strial)</td><td>Atrofi stria vaskularis</td><td>Flat audiogram, ↓semua frekuensi</td></tr>
+        <tr><td>Koklea konduktif</td><td>Penebalan & kekakuan basilar membrane</td><td>↓frekuensi rendah</td></tr>
+      </table>
+      <p><strong>Faktor risiko:</strong> usia, jenis kelamin (pria), hipertensi, DM, hiperkolesterol, merokok, riwayat paparan bising kronis, ototoksik (AG, furosemid, cisplatin)</p>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>🩺 Diagnosis & Tatalaksana</h3>
+      <ul>
+        <li><strong>Anamnesis:</strong> sulit memahami percakapan di bising, berteriak menyebabkan sakit telinga, lebih mudah mendengar suara pria (frekuensi rendah)</li>
+        <li><strong>Otoskopi:</strong> telinga normal / cerumen / atrofi</li>
+        <li><strong>Audiometri nada murni:</strong> sensorineural bilateral simetris, ↓frekuensi tinggi</li>
+        <li><strong>Audiometri tutur:</strong> speech discrimination ↓ (terutama tipe neural)</li>
+      </ul>
+      <p><strong>Terapi:</strong></p>
+      <ul>
+        <li><strong>Alat bantu dengar (ABD):</strong> bila kerusakan saraf tidak terlalu berat; distorsi tetap ada</li>
+        <li><strong>Lip reading & auditory training</strong></li>
+        <li><strong>Konseling komunikasi:</strong> bicara jelas, lambat, hadapkan wajah, kurangi noise, jeda antar kalimat</li>
+      </ul>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Tuli pada Lansia — Sederhana</h4>
+      <p><strong>Presbikusis:</strong> Seperti radio tua yang frekuensi tingginya hilang duluan. Suara pria (nada rendah) masih terdengar, tapi suara wanita/anak (nada tinggi) kabur. Makanya lansia sering "ngomong sendiri" — karena tidak sadar suaranya keras!</p>
+      <ul>
+        <li><strong>Koklea (rumah siput):</strong> Seperti piano tua yang tombol-tombol ujung (nada tinggi) rusak duluan. Tidak bisa diperbaiki — hanya bisa dipelajari cara memainkan tombol yang masih hidup.</li>
+        <li><strong>Tipe Neural:</strong> Seperti telepon dengan kabel putus-putus — suara masuk tapi tidak sampai otak dengan jelas. Makanya lansia bisa "dengar" tapi tidak "paham".</li>
+        <li><strong>Tinitus:</strong> Seperti ada nyamuk di dalam telinga yang terus berdenging. Sangat mengganggu tidur & konsentrasi.</li>
+      </ul>
+      <p><strong>Tips Komunikasi:</strong> Seperti berbicara dengan orang di tempat berisik — hadapkan wajah, bicara pelan & jelas (bukan teriak!), gunakan nada rendah, & beri jeda antar kalimat.</p>
+      <div class="analogy">💡 <strong>Analogi:</strong> Telinga lansia seperti radio tua — frekuensi tinggi hilang duluan, ada suara dengung (tinitus), & kabel ke otak sering putus-putus. Bukan mereka tidak mau dengar, tapi "radionya" sudah rusak.</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: HEAR ME</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">H</div><div class="m-def">High frequency loss first</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">E</div><div class="m-def">Elderly >60 years</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Audiometry confirms SNHL</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">R</div><div class="m-def">Rehabilitation: hearing aid + training</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">M</div><div class="m-def">Men & noise exposure = risk factor</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">E</div><div class="m-def">Environment: reduce background noise</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"Presbikusis itu apa? (Sederhana)",back:"Tuli karena tua. Seperti radio tua yang frekuensi tinggi hilang duluan. Suara pria (nada rendah) masih kedengeran, suara wanita/anak (nada tinggi) kabur."},
+    {front:"Kenapa lansia sering tidak paham meski 'dengar'?",back:"Tipe Neural = kabel telepon ke otak putus-putus. Suara masuk tapi tidak sampai otak dengan jelas. Makanya perlu bicara pelan, jelas, & hadapkan wajah (baca bibir)."},
+    {front:"Tips berkomunikasi dengan lansia tuli?",back:"1. Hadapkan wajah & bicara jelas<br>2. Gunakan nada rendah (suara pria lebih mudah didengar)<br>3. Kurangi noise (matikan TV/radio)<br>4. Jeda antar kalimat<br>5. Jangan TERIAK — malah distorsi!"},
+    {front:"Tinitus pada lansia seperti apa?",back:"Seperti nyamuk di dalam telinga yang berdenging terus. Bisa nada tinggi (ciiiit) atau nada rendah (nguuung). Sangat mengganggu tidur & konsentrasi."},
+    {front:"Alat Bantu Dengar (ABD) untuk lansia efektif?",back:"Ya, tapi tidak sempurna. Seperti kacamata untuk mata — membantu tapi tidak mengembalikan penglihatan muda. Distorsi tetap ada, terutama di tempat berisik."}
+  ],
+  quiz:[
+    {q:"Presbikusis adalah gangguan pendengaran tipe?",options:["Konduktif","Sensorineural","Campuran","Sentral"],correct:1,exp:"Presbikusis adalah tuli sensorineural akibat degenerasi koklea dan saraf pendengaran terkait usia."},
+    {q:"Frekuensi yang paling awal hilang pada presbikusis klasik adalah?",options:["250-500 Hz","1000-2000 Hz","4000-8000 Hz","Semua frekuensi sama"],correct:2,exp:"Presbikusis sensori klasik menyebabkan penurunan ambang pendengaran pada frekuensi tinggi (4000-8000 Hz) terlebih dahulu."},
+    {q:"Tips berkomunikasi dengan lansia gangguan dengar yang benar adalah?",options:["Berteriak dari belakang","Bicara cepat di tempat ramai","Berhadapan, jelas, lambat, kurangi noise","Gunakan nada tinggi"],correct:2,exp:"Komunikasi efektif: berhadapan, wajah terlihat jelas, bicara jelas & lambat, kurangi background noise, gunakan nada rendah."}
+  ]
+},
+{
+  id:13,
+  title:"LUTS & Benign Prostatic Hyperplasia",
+  subtitle:"Anatomi • IPSS • Tatalaksana Medik & Bedah",
+  tag:"Urologi Geriatri",
+  stats:[{v:">50th",l:"Prevalensi BPH"},{v:"7",l:"Item IPSS"},{v:"30-80 mL",l:"Indikasi TURP"}],
+  content:`
+    <div class="info-card academic-only">
+      <h3>🎯 Anatomi & Patofisiologi BPH</h3>
+      <p>BPH terjadi di <strong>zona transisional</strong> (McNeal). Teori etiologi:</p>
+      <ul>
+        <li><strong>Dihydrotestosteron (DHT):</strong> ↑5α-reduktase → ↑DHT → hiperplasia stromal & epitelial</li>
+        <li><strong>Ketidakseimbangan estrogen-testosteron:</strong> ↑estrogen relatif → ↑receptor androgen sensitivitas</li>
+        <li><strong>Stromal-epithelial interaction:</strong> ↑growth factors (EGF, FGF), ↓TGF-β</li>
+        <li><strong>Stem cell theory:</strong> proliferasi sel transit yang berlebihan</li>
+      </ul>
+    </div>
+    <div class="info-card warn academic-only">
+      <h3>📋 LUTS (Lower Urinary Tract Symptoms)</h3>
+      <p><strong>3 kelompok gejala:</strong></p>
+      <ul>
+        <li><strong>Storage:</strong> frekuensi, urgensi, nokturia, inkontinensia urgensi</li>
+        <li><strong>Voiding:</strong> hesitancy, weak stream, intermittency, straining, dribbling</li>
+        <li><strong>Post-micturition:</strong> feeling of incomplete emptying, post-micturition dribble</li>
+      </ul>
+      <p><strong>IPSS (International Prostate Symptom Score):</strong> 7 pertanyaan + 1 QoL. Skor 0-7 mild, 8-19 moderate, 20-35 severe.</p>
+    </div>
+    <div class="info-card academic-only">
+      <h3>🔬 Pemeriksaan Penunjang</h3>
+      <table class="data-table">
+        <tr><th>Pemeriksaan</th><th>Fungsi</th></tr>
+        <tr><td>DRE (Digital Rectal Examination)</td><td>Ukuran, simetri, konsistensi, nodul, nyeri tekan</td></tr>
+        <tr><td>PSA</td><td>Screening kanker prostat; cut-off biopsy 4 ng/mL</td></tr>
+        <tr><td>Uroflowmetry</td><td>Qmax, Qave, pola kurva (bell, plateau, intermittent)</td></tr>
+        <tr><td>Post-void residual (PVR)</td><td>Sisa urine; normal <50 mL; ↑PVR = ↑risiko progresivitas</td></tr>
+        <tr><td>TRUS</td><td>Ukuran prostat, IPP (intravesical prostatic protrusion)</td></tr>
+        <tr><td>Urodynamic</td><td>Konfirmasi obstruksi infravesika jika diagnosis tidak jelas</td></tr>
+      </table>
+    </div>
+    <div class="info-card success academic-only">
+      <h3>💊 Tatalaksana</h3>
+      <p><strong>1. Watchful Waiting:</strong> IPSS <7, tidak mengganggu → edukasi, modifikasi gaya hidup (↓kafein, ↑aktivitas, bladder training), evaluasi 3-6 bulan.</p>
+      <p><strong>2. Medikamentosa:</strong></p>
+      <ul>
+        <li><strong>α1-blocker:</strong> tamsulosin, silodosin, alfuzosin → relaksasi smooth muscle prostat & leher kandung kemih; efek samping: hipotensi ortostatik, ejakulasi retrograd</li>
+        <li><strong>5α-reduktase inhibitor:</strong> finasteride (tipe 2), dutasteride (tipe 1+2) → ↓DHT; efek: ↓volume prostat 20-30%, ↑Qmax; butuh waktu 3-6 bulan</li>
+        <li><strong>Antimuskarinik:</strong> tolterodin, solifenacin → storage symptoms (OAB)</li>
+        <li><strong>Mirabegron:</strong> β3-agonis → relaksasi detrusor tanpa efek antikolinergik</li>
+        <li><strong>PDE5 inhibitor:</strong> tadalafil 5 mg → LUTS + ED</li>
+      </ul>
+      <p><strong>3. Terapi Kombinasi:</strong> α-blocker + 5-ARI (prostat >40 mL, PSA >1,5)</p>
+      <p><strong>4. Bedah:</strong> TURP (gold standard, 30-80 mL), TUIP (<30 mL tanpa median lobe), laser (HoLEP, PVP), open prostatectomy (>80 mL)</p>
+    </div>
+    <div class="simple-card simple-only">
+      <h4>🍎 Prostat Membesar (BPH) — Sederhana</h4>
+      <p><strong>Prostat:</strong> Seperti cincin yang mengelilingi pipa air (uretra). Seiring usia, cincin ini membesar & menyempit pipa → air susah keluar.</p>
+      <ul>
+        <li><strong>Storage (Tampung):</strong> Seperti tangki air bocor — sering penuh & sering buang air kecil (frekuensi), tiba-tiba ingin BAK (urgensi), bangun malam (nokturia).</li>
+        <li><strong>Voiding (Buang):</strong> Seperti selang yang terjepit — air keluar lemah (weak stream), putus-putus (intermittency), harus mengejan (straining), tetes setelah selesai (dribbling).</li>
+        <li><strong>Post-micturition:</strong> Seperti gelas yang tidak dikeringkan — masih ada sisa yang menetes.</li>
+      </ul>
+      <p><strong>Obat:</strong></p>
+      <ul>
+        <li><strong>α-blocker:</strong> Seperti "pelumas" yang melonggarkan cincin prostat → pipa lebih lebar. Efek cepat (hari-minggu).</li>
+        <li><strong>5-ARI:</strong> Seperti "obat diet" yang mengecilkan cincin prostat dari dalam. Efek lambat (3-6 bulan) tapi permanen.</li>
+      </ul>
+      <p><strong>TURP:</strong> Seperti membersihkan cincin prostat dengan "bor listrik" melalui pipa. Gold standard untuk prostat sedang (30-80 mL).</p>
+      <div class="analogy">💡 <strong>Analogi:</strong> BPH seperti cincin prostat yang membesar & menjepit pipa air. Obat α-blocker = pelumas (cepat), 5-ARI = diet cincin (lambat), TURP = bor listrik membersihkan cincin (permanen).</div>
+    </div>
+    <div class="mnemonic-box">
+      <h4>🧠 Mnemonik: PROSTATE</h4>
+      <div class="mnemonic-letters">
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">P</div><div class="m-def">Prostate size (TRUS)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">R</div><div class="m-def">Residual urine (PVR)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">O</div><div class="m-def">Obstruction (uroflowmetry)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">S</div><div class="m-def">Symptom score (IPSS)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">Test PSA (screening Ca)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">A</div><div class="m-def">Alpha-blocker (first line)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">T</div><div class="m-def">TURP (gold standard bedah)</div>
+        <div class="m-letter" onclick="this.classList.toggle('revealed')">E</div><div class="m-def">Evaluate Qmax & QoL</div>
+      </div>
+    </div>
+  `,
+  simpleBlocks:[],
+  flashcards:[
+    {front:"BPH itu apa? (Sederhana)",back:"Prostat membesar jinak. Seperti cincin mengelilingi pipa air yang membesar & menyempit pipa. Akibatnya: BAK sering, lemah, & tidak tuntas."},
+    {front:"Bedanya Storage & Voiding symptoms?",back:"Storage = masalah 'tampung' — sering BAK, tiba-tiba ingin, bangun malam (tangki bocor). Voiding = masalah 'keluar' — lemah, putus-putus, harus ngejan (selang terjepit)."},
+    {front:"IPSS itu apa & skornya?",back:"Kuesioner 7 pertanyaan untuk ukur seberapa parah gejala BPH. 0-7 = ringan, 8-19 = sedang, 20-35 = berat. Seperti skala nyeri 1-10."},
+    {front:"α-blocker vs 5-ARI — bedanya?",back:"α-blocker = pelumas pipa (cepat, minggu). 5-ARI = diet cincin prostat (lambat, 3-6 bulan). Kombinasi = prostat besar (>40mL) + gejala parah."},
+    {front:"Kapan TURP diperlukan?",back:"Prostat 30-80 mL + gejala mengganggu + gagal obat. Seperti bor listrik membersihkan cincin prostat melalui pipa. Gold standard bedah BPH."}
+  ],
+  quiz:[
+    {q:"Zona prostat tempat BPH paling sering muncul adalah?",options:["Zona perifer","Zona transisional","Zona sentral","Kapsul prostat"],correct:1,exp:"BPH berkembang di zona transisional (transitional zone) yang mengelilingi uretra proksimal."},
+    {q:"Skor IPSS yang menunjukkan gejala LUTS moderate adalah?",options:["0-7","8-19","20-35",">35"],correct:1,exp:"IPSS: 0-7 mild, 8-19 moderate, 20-35 severe."},
+    {q:"Terapi bedah gold standard untuk BPH dengan volume prostat 30-80 mL adalah?",options:["TUIP","TURP","Open prostatectomy","Laser ablasi"],correct:1,exp:"TURP (Transurethral Resection of the Prostate) merupakan gold standard untuk BPH dengan volume 30-80 mL."}
+  ]
+}
+];
+
+// ===================== AUTH =====================
+const AUTH_PASSWORD = "geriatriunja";
+const AUTH_STORAGE_KEY = "geriatri_auth";
+
+function checkAuth(){
+  const input = document.getElementById('auth-input').value.trim().toLowerCase();
+  const err = document.getElementById('auth-error');
+  if(input === AUTH_PASSWORD){
+    localStorage.setItem(AUTH_STORAGE_KEY, "1");
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('splash').classList.add('visible');
+  } else {
+    err.textContent = "❌ Sandi salah. Petunjuk: nama blok + kampus (huruf kecil, tanpa spasi)";
+    document.getElementById('auth-input').value = '';
+    document.getElementById('auth-input').focus();
+  }
+}
+
+// Auto-check on load
+(function(){
+  if(localStorage.getItem(AUTH_STORAGE_KEY) === "1"){
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('splash').classList.add('visible');
+  }
+})();
+
+// ===================== STATE =====================
+let currentSlide = 0;
+let visited = new Set();
+let bookmarks = new Set();
+let answered = {};
+let zoomLevel = 1;
+let examMode = false;
+let examQuestions = [];
+let examAnswers = {};
+let examCurrent = 0;
+let examTimer = null;
+let examTimeLeft = 40*60;
+let simpleMode = false;
+let flashcardsAll = [];
+let flashCurrent = 0;
+let flashKnown = new Set();
+let flashHard = new Set();
+let flashFilter = 'all';
+
+// ===================== INIT =====================
+function init(){
+  loadState();
+  buildFlashcardsAll();
+  renderNav();
+  renderSlides();
+  populateFlashFilter();
+  updateUI();
+  document.addEventListener('keydown', handleKey);
+}
+
+function loadState(){
+  try{
+    const v = localStorage.getItem('geriatri_visited');
+    if(v) visited = new Set(JSON.parse(v));
+    const b = localStorage.getItem('geriatri_bookmarks');
+    if(b) bookmarks = new Set(JSON.parse(b));
+    const a = localStorage.getItem('geriatri_answered');
+    if(a) answered = JSON.parse(a);
+    const s = localStorage.getItem('geriatri_simple');
+    if(s === '1') { simpleMode = true; document.body.classList.add('simple-mode'); updateSimpleToggle(); }
+    const f = localStorage.getItem('geriatri_flash_known');
+    if(f) flashKnown = new Set(JSON.parse(f));
+    const h = localStorage.getItem('geriatri_flash_hard');
+    if(h) flashHard = new Set(JSON.parse(h));
+  }catch(e){}
+}
+function saveState(){
+  localStorage.setItem('geriatri_visited', JSON.stringify([...visited]));
+  localStorage.setItem('geriatri_bookmarks', JSON.stringify([...bookmarks]));
+  localStorage.setItem('geriatri_answered', JSON.stringify(answered));
+  localStorage.setItem('geriatri_simple', simpleMode ? '1' : '0');
+  localStorage.setItem('geriatri_flash_known', JSON.stringify([...flashKnown]));
+  localStorage.setItem('geriatri_flash_hard', JSON.stringify([...flashHard]));
+}
+
+// ===================== SIMPLE MODE =====================
+function toggleSimpleMode(){
+  simpleMode = !simpleMode;
+  document.body.classList.toggle('simple-mode', simpleMode);
+  updateSimpleToggle();
+  saveState();
+}
+function updateSimpleToggle(){
+  const btn = document.getElementById('simple-toggle');
+  const icon = document.getElementById('simple-icon');
+  const lbl = document.getElementById('simple-label');
+  if(simpleMode){
+    btn.classList.add('active');
+    icon.textContent = '🍎';
+    lbl.textContent = 'Sederhana';
+  } else {
+    btn.classList.remove('active');
+    icon.textContent = '🎓';
+    lbl.textContent = 'Akademik';
+  }
+}
+
+// ===================== FLASHCARDS =====================
+function buildFlashcardsAll(){
+  flashcardsAll = [];
+  slidesData.forEach((s,si)=>{
+    if(s.flashcards){
+      s.flashcards.forEach((fc,fi)=>{
+        flashcardsAll.push({...fc, slideIndex: si, slideTitle: s.title, id: `fc-${s.id}-${fi}`});
+      });
+    }
+  });
+}
+
+function populateFlashFilter(){
+  const sel = document.getElementById('flash-filter');
+  sel.innerHTML = '<option value="all">Semua Slide ('+flashcardsAll.length+')</option>' +
+    slidesData.map((s,i) => `<option value="${i}">${i+1}. ${s.title}</option>`).join('');
+}
+
+function getFilteredFlashcards(){
+  if(flashFilter === 'all') return flashcardsAll;
+  return flashcardsAll.filter(fc => fc.slideIndex === parseInt(flashFilter));
+}
+
+function openFlashcards(){
+  document.getElementById('flash-screen').classList.add('active');
+  flashCurrent = 0;
+  renderFlashcard();
+}
+function closeFlashcards(){
+  document.getElementById('flash-screen').classList.remove('active');
+  document.getElementById('flash-card-container').classList.remove('flipped');
+}
+
+function renderFlashcard(){
+  const list = getFilteredFlashcards();
+  if(!list.length){
+    document.getElementById('flash-front-text').textContent = "Tidak ada flashcard untuk filter ini.";
+    document.getElementById('flash-back-text').textContent = "";
+    return;
+  }
+  const fc = list[flashCurrent];
+  document.getElementById('flash-front-text').innerHTML = fc.front;
+  document.getElementById('flash-back-text').innerHTML = fc.back;
+  document.getElementById('flash-front-meta').textContent = `${fc.slideTitle} • ${flashCurrent+1} / ${list.length}`;
+  document.getElementById('flash-back-meta').textContent = flashKnown.has(fc.id) ? '✅ Sudah dikuasai' : flashHard.has(fc.id) ? '🔴 Perlu diulang' : 'Tap card untuk kembali';
+  document.getElementById('flash-card-container').classList.remove('flipped');
+  document.getElementById('flash-progress-fill').style.width = ((flashCurrent+1)/list.length*100)+'%';
+  document.getElementById('flash-stats').textContent = `${flashCurrent+1} / ${list.length}`;
+}
+
+function flipFlashcard(){
+  document.getElementById('flash-card-container').classList.toggle('flipped');
+}
+
+function nextFlashcard(){
+  const list = getFilteredFlashcards();
+  if(flashCurrent < list.length-1){ flashCurrent++; renderFlashcard(); }
+}
+function prevFlashcard(){
+  if(flashCurrent > 0){ flashCurrent--; renderFlashcard(); }
+}
+
+function markFlashcardEasy(){
+  const list = getFilteredFlashcards();
+  if(list[flashCurrent]){
+    const id = list[flashCurrent].id;
+    flashKnown.add(id); flashHard.delete(id); saveState();
+    renderFlashcard();
+    setTimeout(nextFlashcard, 300);
+  }
+}
+function markFlashcardHard(){
+  const list = getFilteredFlashcards();
+  if(list[flashCurrent]){
+    const id = list[flashCurrent].id;
+    flashHard.add(id); flashKnown.delete(id); saveState();
+    renderFlashcard();
+  }
+}
+
+function shuffleFlashcards(){
+  const list = getFilteredFlashcards();
+  for(let i=list.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  flashCurrent = 0; renderFlashcard();
+}
+
+function filterFlashcards(val){
+  flashFilter = val;
+  flashCurrent = 0;
+  renderFlashcard();
+}
+
+// ===================== RENDER =====================
+function renderNav(){
+  const nav = document.getElementById('nav-scroll');
+  nav.innerHTML = slidesData.map((s,i)=>{
+    const isActive = i===currentSlide;
+    const isVisited = visited.has(s.id);
+    const isBookmarked = bookmarks.has(s.id);
+    return `<div class="nav-item ${isActive?'active':''} ${isVisited?'visited':''}" onclick="goToSlide(${i})" data-id="${s.id}">
+      <div class="n-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="n-title">${s.title}</div>
+      <div class="n-check">${isVisited?'✓':''}</div>
+      ${isBookmarked?'<div class="n-bookmark">★</div>':''}
+    </div>`;
+  }).join('');
+  document.getElementById('total-slides').textContent = slidesData.length;
+}
+
+function renderSlides(){
+  const content = document.getElementById('content');
+  content.innerHTML = slidesData.map((s,i)=>{
+    const statsHtml = s.stats.map(st=>`<div class="stat-card"><span class="stat-val">${st.v}</span><div class="stat-label">${st.l}</div></div>`).join('');
+    const quizHtml = s.quiz.map((q,qi)=>{
+      const qid = `q-${s.id}-${qi}`;
+      const isAnswered = answered[s.id] && answered[s.id][qi] !== undefined;
+      const opts = q.options.map((opt,oi)=>{
+        let cls = '';
+        if(isAnswered){
+          if(oi===q.correct) cls='correct disabled';
+          else if(answered[s.id][qi]===oi) cls='wrong disabled';
+          else cls='disabled';
+        }
+        return `<div class="quiz-opt ${cls}" onclick="answerQuiz(${s.id},${qi},${oi},this)"><span class="opt-label">${String.fromCharCode(65+oi)}</span> ${opt}</div>`;
+      }).join('');
+      const expCls = isAnswered ? 'show' : '';
+      return `<div class="quiz-box" id="${qid}">
+        <div class="quiz-question">${qi+1}. ${q.q}</div>
+        <div class="quiz-options">${opts}</div>
+        <div class="quiz-explanation ${expCls}"><strong>Penjelasan:</strong> ${q.exp}</div>
+      </div>`;
+    }).join('');
+    return `<div class="slide ${i===0?'active':''}" data-index="${i}">
+      <div class="slide-header">
+        <span class="slide-tag">${s.tag}</span>
+        <h1 class="slide-title">${s.title}</h1>
+        <p class="slide-sub">${s.subtitle}</p>
+      </div>
+      <div class="stats-row">${statsHtml}</div>
+      ${s.content}
+      <div class="mt-2"><h3 style="color:var(--accent);margin-bottom:.8rem">📝 Quiz Latihan</h3>${quizHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== NAVIGATION =====================
+function goToSlide(idx){
+  if(idx<0||idx>=slidesData.length)return;
+  document.querySelectorAll('.slide').forEach((el,i)=>{
+    el.classList.toggle('active', i===idx);
+  });
+  currentSlide = idx;
+  visited.add(slidesData[idx].id);
+  saveState();
+  updateUI();
+  document.getElementById('content').scrollTop = 0;
+  if(window.innerWidth<768) toggleSidebar(false);
+}
+function nextSlide(){goToSlide(currentSlide+1);}
+function prevSlide(){goToSlide(currentSlide-1);}
+
+function updateUI(){
+  document.getElementById('slide-counter').textContent = `${String(currentSlide+1).padStart(2,'0')} / ${slidesData.length}`;
+  document.getElementById('btn-prev').disabled = currentSlide===0;
+  document.getElementById('btn-next').disabled = currentSlide===slidesData.length-1;
+  const bm = document.getElementById('bookmark-btn');
+  bm.classList.toggle('active', bookmarks.has(slidesData[currentSlide].id));
+  bm.textContent = bookmarks.has(slidesData[currentSlide].id)?'★':'☆';
+
+  const pct = Math.round((visited.size / slidesData.length)*100);
+  document.getElementById('progress-text').textContent = pct+'%';
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('visited-count').textContent = visited.size;
+  let ansCount = 0;
+  Object.values(answered).forEach(a=> ansCount += Object.values(a).filter(x=>x!==undefined).length);
+  document.getElementById('answered-count').textContent = ansCount;
+  document.getElementById('bookmark-count').textContent = bookmarks.size;
+  renderNav();
+}
+
+function toggleSidebar(force){
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  if(typeof force === 'boolean'){
+    sb.classList.toggle('collapsed', !force);
+    ov.classList.toggle('show', force && window.innerWidth<768);
+  } else {
+    sb.classList.toggle('collapsed');
+    ov.classList.toggle('show', !sb.classList.contains('collapsed') && window.innerWidth<768);
+  }
+}
+
+function toggleBookmark(){
+  const id = slidesData[currentSlide].id;
+  if(bookmarks.has(id)) bookmarks.delete(id); else bookmarks.add(id);
+  saveState();
+  updateUI();
+}
+
+function toggleZoom(){
+  zoomLevel = zoomLevel===1?1.15:zoomLevel===1.15?1.3:1;
+  document.getElementById('content').style.zoom = zoomLevel;
+}
+
+// ===================== QUIZ =====================
+function answerQuiz(slideId, qIdx, optIdx, el){
+  const slide = slidesData.find(s=>s.id===slideId);
+  const q = slide.quiz[qIdx];
+  if(!answered[slideId]) answered[slideId] = {};
+  if(answered[slideId][qIdx] !== undefined) return;
+  answered[slideId][qIdx] = optIdx;
+  saveState();
+
+  const box = el.closest('.quiz-box');
+  const opts = box.querySelectorAll('.quiz-opt');
+  opts.forEach((opt,oi)=>{
+    opt.classList.add('disabled');
+    if(oi===q.correct) opt.classList.add('correct');
+    else if(oi===optIdx) opt.classList.add('wrong');
+  });
+  box.querySelector('.quiz-explanation').classList.add('show');
+  updateUI();
+}
+
+// ===================== SEARCH =====================
+function doSearch(q){
+  const res = document.getElementById('search-results');
+  if(!q){res.style.display='none';return;}
+  const hits = [];
+  slidesData.forEach((s,i)=>{
+    const txt = (s.title+' '+s.subtitle+' '+s.tag+' '+s.content).toLowerCase();
+    if(txt.includes(q.toLowerCase())) hits.push({i,title:s.title,tag:s.tag});
+  });
+  if(hits.length){
+    res.innerHTML = hits.map(h=>`<div class="search-res-item" onclick="goToSlide(${h.i});document.getElementById('search-results').style.display='none';document.getElementById('search-input').value=''"><span>${String(h.i+1).padStart(2,'0')}</span> ${h.title}</div>`).join('');
+    res.style.display='block';
+  } else {res.style.display='none';}
+}
+
+// ===================== EXAM =====================
+function startExam(){
+  examQuestions = [];
+  slidesData.forEach(s=>{
+    s.quiz.forEach((q,qi)=>{
+      examQuestions.push({...q, slideId:s.id, slideTitle:s.title, originalQi:qi});
+    });
+  });
+  for(let i=examQuestions.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [examQuestions[i], examQuestions[j]] = [examQuestions[j], examQuestions[i]];
+  }
+  if(examQuestions.length>40) examQuestions = examQuestions.slice(0,40);
+  examAnswers = {};
+  examCurrent = 0;
+  examTimeLeft = 40*60;
+  examMode = true;
+
+  document.getElementById('exam-screen').classList.add('active');
+  renderExamQuestion();
+  startExamTimer();
+}
+
+function renderExamQuestion(){
+  const body = document.getElementById('exam-body');
+  const q = examQuestions[examCurrent];
+  const answeredIdx = examAnswers[examCurrent];
+  const opts = q.options.map((opt,oi)=>{
+    let cls = '';
+    if(answeredIdx!==undefined){
+      if(oi===q.correct) cls='correct disabled';
+      else if(answeredIdx===oi) cls='wrong disabled';
+      else cls='disabled';
+    }
+    return `<div class="quiz-opt ${cls}" onclick="answerExam(${oi},this)"><span class="opt-label">${String.fromCharCode(65+oi)}</span> ${opt}</div>`;
+  }).join('');
+  body.innerHTML = `<div class="quiz-box">
+    <div style="font-size:.8rem;color:var(--text3);margin-bottom:.5rem">${q.slideTitle}</div>
+    <div class="quiz-question">${examCurrent+1}. ${q.q}</div>
+    <div class="quiz-options">${opts}</div>
+    ${answeredIdx!==undefined?`<div class="quiz-explanation show"><strong>Penjelasan:</strong> ${q.exp}</div>`:''}
+  </div>`;
+  document.getElementById('exam-progress').textContent = `${examCurrent+1} / ${examQuestions.length}`;
+}
+
+function answerExam(optIdx, el){
+  if(examAnswers[examCurrent]!==undefined) return;
+  examAnswers[examCurrent] = optIdx;
+  const q = examQuestions[examCurrent];
+  const box = el.closest('.quiz-box');
+  box.querySelectorAll('.quiz-opt').forEach((opt,oi)=>{
+    opt.classList.add('disabled');
+    if(oi===q.correct) opt.classList.add('correct');
+    else if(oi===optIdx) opt.classList.add('wrong');
+  });
+  box.insertAdjacentHTML('beforeend', `<div class="quiz-explanation show"><strong>Penjelasan:</strong> ${q.exp}</div>`);
+}
+
+function nextExamQ(){if(examCurrent<examQuestions.length-1){examCurrent++;renderExamQuestion();}}
+function prevExamQ(){if(examCurrent>0){examCurrent--;renderExamQuestion();}}
+
+function startExamTimer(){
+  clearInterval(examTimer);
+  const timerEl = document.getElementById('exam-timer');
+  timerEl.classList.remove('urgent');
+  examTimer = setInterval(()=>{
+    examTimeLeft--;
+    const m = Math.floor(examTimeLeft/60);
+    const s = examTimeLeft%60;
+    timerEl.textContent = `${m}:${String(s).padStart(2,'0')}`;
+    if(examTimeLeft<300) timerEl.classList.add('urgent');
+    if(examTimeLeft<=0){clearInterval(examTimer);submitExam();}
+  },1000);
+}
+
+function submitExam(){
+  clearInterval(examTimer);
+  let correct=0, wrong=0;
+  examQuestions.forEach((q,i)=>{
+    if(examAnswers[i]===q.correct) correct++;
+    else if(examAnswers[i]!==undefined) wrong++;
+  });
+  const total = examQuestions.length;
+  const score = Math.round((correct/total)*100);
+  const m = Math.floor(examTimeLeft/60);
+  const s = examTimeLeft%60;
+
+  document.getElementById('result-score').textContent = score+'%';
+  let msg = '';
+  if(score>=80) msg = '🏆 Luar biasa! Anda menguasai materi Geriatri dengan sangat baik.';
+  else if(score>=60) msg = '👍 Baik! Pemahaman Anda solid, tingkatkan lagi area yang masih kurang.';
+  else msg = '💪 Jangan menyerah! Review materi yang masih kurang dan coba lagi.';
+  document.getElementById('result-msg').textContent = msg;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = wrong;
+  document.getElementById('res-time').textContent = `${m}:${String(s).padStart(2,'0')}`;
+
+  document.getElementById('exam-screen').classList.remove('active');
+  document.getElementById('exam-result').classList.add('active');
+}
+
+function closeExamResult(){
+  document.getElementById('exam-result').classList.remove('active');
+  examMode = false;
+}
+
+// ===================== KEYBOARD =====================
+function handleKey(e){
+  if(document.getElementById('auth-screen') && !document.getElementById('auth-screen').classList.contains('hidden')){
+    if(e.key==='Enter') checkAuth();
+    return;
+  }
+  if(document.getElementById('flash-screen').classList.contains('active')){
+    if(e.key==='ArrowRight'||e.key===' ') { e.preventDefault(); if(document.getElementById('flash-card-container').classList.contains('flipped')) nextFlashcard(); else flipFlashcard(); }
+    if(e.key==='ArrowLeft') prevFlashcard();
+    if(e.key==='e'||e.key==='E') markFlashcardEasy();
+    if(e.key==='h'||e.key==='H') markFlashcardHard();
+    if(e.key==='Escape') closeFlashcards();
+    return;
+  }
+  if(examMode){
+    if(e.key==='ArrowRight') nextExamQ();
+    if(e.key==='ArrowLeft') prevExamQ();
+    return;
+  }
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+  if(e.key==='b'||e.key==='B') toggleBookmark();
+  if(e.key==='f'||e.key==='F') openFlashcards();
+  if(e.key==='s'||e.key==='S') toggleSimpleMode();
+}
+
+// ===================== SPLASH =====================
+function enterApp(){
+  document.getElementById('splash').classList.remove('visible');
+  document.getElementById('splash').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  init();
+}
+
+// ===================== SERVICE WORKER =====================
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('data:text/javascript,'+encodeURIComponent(`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`));
+}
+</script>
+</body>
+</html>
